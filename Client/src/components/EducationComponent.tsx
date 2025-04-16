@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { useData } from "@/contexts/DataContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Pencil, Plus, Trash2, Save } from "lucide-react";
+import { Pencil, Plus, Trash2 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import {
   Card,
@@ -11,7 +10,6 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-  CardFooter,
 } from "@/components/ui/card";
 import {
   Dialog,
@@ -23,10 +21,9 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-
-import { Education } from "e:/Programming/Recruitment Counsellor/Client/src/types/index";
-
 import axios from "axios";
+
+import { Education } from "@/types"; // Adjust path if needed
 
 function EducationComponent() {
   const tok = localStorage.getItem("user");
@@ -34,10 +31,20 @@ function EducationComponent() {
 
   const { toast } = useToast();
   const [educationDialogOpen, setEducationDialogOpen] = useState(false);
-
   const [getEducation, setEducation] = useState<Education[]>([]);
+  const [editingEducationId, setEditingEducationId] = useState<string | null>(
+    null
+  );
 
-  // Education handlers
+  const [educationForm, setEducationForm] = useState({
+    institution: "",
+    degree: "",
+    fieldOfStudy: "",
+    startDate: "",
+    endDate: "",
+    description: "",
+  });
+
   const handleEducationChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
@@ -45,6 +52,18 @@ function EducationComponent() {
       ...prev,
       [e.target.name]: e.target.value,
     }));
+  };
+
+  const resetEducationForm = () => {
+    setEducationForm({
+      institution: "",
+      degree: "",
+      fieldOfStudy: "",
+      startDate: "",
+      endDate: "",
+      description: "",
+    });
+    setEditingEducationId(null);
   };
 
   const handleEducationSubmit = async () => {
@@ -63,69 +82,60 @@ function EducationComponent() {
         description: "Please fill in all fields before submitting.",
         variant: "destructive",
       });
-
       return;
     }
 
     try {
-      const res = await axios.post(
-        "http://localhost:4000/api/education/add",
-        educationForm,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      if (editingEducationId) {
+        await axios.put(
+          `http://localhost:4000/api/education/update/${editingEducationId}`,
+          educationForm,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        toast({
+          title: "Education updated",
+          description: "Updated successfully",
+        });
+      } else {
+        await axios.post(
+          "http://localhost:4000/api/education/add",
+          educationForm,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        toast({
+          title: "Education added",
+          description: "Added successfully",
+        });
+      }
+
       loadEducation();
-      toast({ title: "Education added", description: "Added successfully" });
+      setEducationDialogOpen(false);
+      resetEducationForm();
     } catch (error) {
-      console.error("Add error", error);
+      console.error("Education submission error", error);
+      toast({
+        title: "Error",
+        description: "Something went wrong. Please try again.",
+        variant: "destructive",
+      });
     }
-
-    setEducationDialogOpen(false);
-    resetEducationForm();
-  };
-
-  const resetEducationForm = () => {
-    setEducationForm({
-      institution: "",
-      degree: "",
-      fieldOfStudy: "",
-      startDate: "",
-      endDate: "",
-      description: "",
-    });
   };
 
   const editEducation = (education: Education) => {
-    // setEducationForm(education);
-    // setEducationDialogOpen(true);
-  };
-
-  const [educationForm, setEducationForm] = useState({
-    institution: "",
-    degree: "",
-    fieldOfStudy: "",
-    startDate: "",
-    endDate: "",
-    description: "",
-  });
-
-  useEffect(() => {
-    loadEducation();
-  }, []);
-
-  const loadEducation = async () => {
-    try {
-      const education = await axios.get(
-        "http://localhost:4000/api/education/",
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      setEducation(education?.data?.data || []);
-    } catch (error) {
-      console.error("education fetch error: ", error);
-    }
+    setEducationForm({
+      institution: education.institution,
+      degree: education.degree,
+      fieldOfStudy: education.fieldOfStudy,
+      startDate: education.startDate.slice(0, 10),
+      endDate: education.endDate.slice(0, 10),
+      description: education.description || "",
+    });
+    setEditingEducationId(education._id);
+    setEducationDialogOpen(true);
   };
 
   const deleteEducation = async (id: string) => {
@@ -146,7 +156,6 @@ function EducationComponent() {
         description: "The record was successfully removed.",
       });
 
-      // Refresh the list
       loadEducation();
     } catch (error) {
       console.error("Delete error", error);
@@ -158,6 +167,24 @@ function EducationComponent() {
     }
   };
 
+  const loadEducation = async () => {
+    try {
+      const education = await axios.get(
+        "http://localhost:4000/api/education/",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      setEducation(education?.data?.data || []);
+    } catch (error) {
+      console.error("education fetch error: ", error);
+    }
+  };
+
+  useEffect(() => {
+    loadEducation();
+  }, []);
+
   return (
     <>
       <Card className="mb-8">
@@ -166,20 +193,26 @@ function EducationComponent() {
             <CardTitle>Education</CardTitle>
             <Dialog
               open={educationDialogOpen}
-              onOpenChange={setEducationDialogOpen}
+              onOpenChange={(open) => {
+                if (!open) resetEducationForm();
+                setEducationDialogOpen(open);
+              }}
             >
               <DialogTrigger asChild>
                 <Button variant="outline" size="sm">
-                  <Plus className="h-4 w-4 mr-2" /> Add Education
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Education
                 </Button>
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
                   <DialogTitle>
-                    {educationForm ? "Edit Education" : "Add Education"}
+                    {editingEducationId ? "Edit Education" : "Add Education"}
                   </DialogTitle>
                   <DialogDescription>
-                    Add your academic qualifications and educational background
+                    {editingEducationId
+                      ? "Update your educational background"
+                      : "Add your academic qualifications"}
                   </DialogDescription>
                 </DialogHeader>
                 <div className="grid gap-4 py-4">
@@ -256,7 +289,7 @@ function EducationComponent() {
                     Cancel
                   </Button>
                   <Button onClick={handleEducationSubmit}>
-                    {educationForm ? "Update" : "Add"}
+                    {editingEducationId ? "Update" : "Add"}
                   </Button>
                 </DialogFooter>
               </DialogContent>
@@ -283,7 +316,9 @@ function EducationComponent() {
                 >
                   <div className="flex justify-between items-start">
                     <div>
-                      <h3 className="font-medium text-lg">{edu.institution}</h3>
+                      <h3 className="font-medium text-lg">
+                        {edu.institution}
+                      </h3>
                       <p>
                         {edu.degree} in {edu.fieldOfStudy}
                       </p>
