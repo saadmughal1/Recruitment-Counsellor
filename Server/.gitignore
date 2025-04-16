@@ -1,1 +1,6 @@
 node_modules
+# Ignore all files inside uploads/
+uploads/*
+
+# But do not ignore the folder itself (so it stays in the repo)
+!uploads/.gitkeep

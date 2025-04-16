@@ -24,6 +24,10 @@ const userSchema = new mongoose.Schema(
       enum: ["applicant", "recruiter"],
       required: true,
     },
+    profilePhoto: {
+      type: String,
+      required: false,
+    },
   },
   { timestamps: true }
 );

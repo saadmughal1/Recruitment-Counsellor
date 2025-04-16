@@ -25,8 +25,34 @@ const Auth: React.FC = () => {
   const [email, setEmail] = useState("");
   const [fullname, setFullname] = useState("");
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
   const [userType, setUserType] = useState<UserType>("applicant");
+  const [profilePhoto, setProfilePhoto] = useState<File | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files ? e.target.files[0] : null;
+    if (file) {
+      // Check file type
+      const validTypes = ["image/png", "image/jpeg", "image/jpg"];
+      if (!validTypes.includes(file.type)) {
+        toast({
+          title: "Error",
+          description: "Please upload a .png, .jpg, or .jpeg image",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      setProfilePhoto(file);
+
+      // Set preview
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,26 +75,27 @@ const Auth: React.FC = () => {
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !password || !confirmPassword) {
+    if (!email || !password || (userType === "applicant" && !profilePhoto)) {
       toast({
         title: "Error",
-        description: "Please fill out all fields",
+        description: "Please fill out all fields and upload a profile photo",
         variant: "destructive",
       });
       return;
     }
 
-    if (password !== confirmPassword) {
-      toast({
-        title: "Error",
-        description: "Passwords do not match",
-        variant: "destructive",
-      });
-      return;
+    const formData = new FormData();
+    formData.append("fullname", fullname);
+    formData.append("email", email);
+    formData.append("password", password);
+    formData.append("role", userType);
+
+    if (userType === "applicant" && profilePhoto) {
+      formData.append("profilePhoto", profilePhoto);
     }
 
     try {
-      await register(email, password, fullname, userType);
+      await register(formData);
       navigate("/dashboard");
     } catch (error) {
       console.error("Registration error:", error);
@@ -202,16 +229,8 @@ const Auth: React.FC = () => {
                       required
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="confirm-password">Confirm Password</Label>
-                    <Input
-                      id="confirm-password"
-                      type="password"
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                      required
-                    />
-                  </div>
+
+                  {/* Display Profile Photo Section Only for Applicants */}
                   <div className="space-y-2">
                     <Label>I am a</Label>
                     <RadioGroup
@@ -235,6 +254,28 @@ const Auth: React.FC = () => {
                       </div>
                     </RadioGroup>
                   </div>
+
+                  {/* Conditionally Render Profile Photo Field */}
+                  {userType === "applicant" && (
+                    <div className="space-y-2">
+                      <Label htmlFor="profile-photo">Profile Photo</Label>
+                      <Input
+                        id="profile-photo"
+                        type="file"
+                        onChange={handleFileChange}
+                        accept="image/png, image/jpeg, image/jpg"
+                      />
+                      {preview && (
+                        <div className="mt-4">
+                          <img
+                            src={preview}
+                            alt="Profile Preview"
+                            className="w-32 h-32 object-cover rounded-full"
+                          />
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </CardContent>
                 <CardFooter>
                   <Button type="submit" className="w-full" disabled={isLoading}>

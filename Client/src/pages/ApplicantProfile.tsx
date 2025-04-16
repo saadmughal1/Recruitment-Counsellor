@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useData } from "@/contexts/DataContext";
 import MainLayout from "@/components/layout/MainLayout";
@@ -34,17 +33,47 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Pencil, Plus, Trash2, Save } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+
+import { useAuth } from "@/contexts/AuthContext";
 
 const ApplicantProfile = () => {
-  const { applicant, updateApplicant, addEducation, updateEducation, deleteEducation, addSkill, updateSkill, deleteSkill, addExperience, updateExperience, deleteExperience, addLanguage, updateLanguage, deleteLanguage } = useData();
-  
+  const { user } = useAuth();
+
+  const {
+    applicant,
+    updateApplicant,
+    addEducation,
+    updateEducation,
+    deleteEducation,
+    addSkill,
+    updateSkill,
+    deleteSkill,
+    addExperience,
+    updateExperience,
+    deleteExperience,
+    addLanguage,
+    updateLanguage,
+    deleteLanguage,
+  } = useData();
+
   const [isEditingBasic, setIsEditingBasic] = useState(false);
+
   const [basicInfo, setBasicInfo] = useState({
-    fullName: applicant?.fullName || "",
-    email: applicant?.email || "",
-    profilePhoto: applicant?.profilePhoto || "",
+    fullName: user?.fullname || "",
+    email: user?.email || "",
+    profilePhoto: user?.profilePhoto || "",
   });
+
+
 
   // Form states for adding/editing items
   const [educationForm, setEducationForm] = useState({
@@ -87,7 +116,9 @@ const ApplicantProfile = () => {
   const [languageDialogOpen, setLanguageDialogOpen] = useState(false);
 
   // Basic Info handlers
-  const handleBasicInfoChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleBasicInfoChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     setBasicInfo({
       ...basicInfo,
       [e.target.name]: e.target.value,
@@ -100,7 +131,9 @@ const ApplicantProfile = () => {
   };
 
   // Education handlers
-  const handleEducationChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleEducationChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     setEducationForm({
       ...educationForm,
       [e.target.name]: e.target.value,
@@ -177,7 +210,9 @@ const ApplicantProfile = () => {
   };
 
   // Experience handlers
-  const handleExperienceChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleExperienceChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     setExperienceForm({
       ...experienceForm,
       [e.target.name]: e.target.value,
@@ -262,6 +297,19 @@ const ApplicantProfile = () => {
     });
   };
 
+  // console.log(basicInfo);
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+
+    // console.log(file);
+
+    setBasicInfo({
+      ...basicInfo,
+      profilePhoto: file,
+    });
+  };
+
   if (!applicant) {
     return (
       <MainLayout>
@@ -272,7 +320,9 @@ const ApplicantProfile = () => {
 
   return (
     <MainLayout>
-      <h1 className="text-3xl font-bold tracking-tight mb-6">Applicant Profile</h1>
+      <h1 className="text-3xl font-bold tracking-tight mb-6">
+        Applicant Profile
+      </h1>
 
       {/* Basic Information */}
       <Card className="mb-8">
@@ -280,12 +330,18 @@ const ApplicantProfile = () => {
           <div className="flex justify-between items-center">
             <CardTitle>Basic Information</CardTitle>
             {!isEditingBasic && (
-              <Button variant="outline" size="sm" onClick={() => setIsEditingBasic(true)}>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setIsEditingBasic(true)}
+              >
                 <Pencil className="h-4 w-4 mr-2" /> Edit
               </Button>
             )}
           </div>
-          <CardDescription>Your personal information visible to recruiters</CardDescription>
+          <CardDescription>
+            Your personal information visible to recruiters
+          </CardDescription>
         </CardHeader>
         <CardContent>
           {isEditingBasic ? (
@@ -304,6 +360,7 @@ const ApplicantProfile = () => {
                 <div className="flex-1">
                   <Label htmlFor="email">Email</Label>
                   <Input
+                    required
                     id="email"
                     name="email"
                     value={basicInfo.email}
@@ -313,21 +370,24 @@ const ApplicantProfile = () => {
                   />
                 </div>
               </div>
+
               <div>
-                <Label htmlFor="profilePhoto">Profile Photo URL</Label>
+                <Label htmlFor="profilePhoto">Profile Photo </Label>
                 <Input
+                  required
                   id="profilePhoto"
                   name="profilePhoto"
-                  value={basicInfo.profilePhoto}
-                  onChange={handleBasicInfoChange}
-                  placeholder="Enter profile photo URL (optional)"
+                  type="file"
+                  onChange={handleFileChange}
+                  placeholder="Select profile photo"
                 />
-                <p className="text-xs text-muted-foreground mt-1">
-                  Enter a URL to your profile image (for a real app, you would upload an image)
-                </p>
               </div>
+
               <div className="flex justify-end space-x-2 mt-4">
-                <Button variant="outline" onClick={() => setIsEditingBasic(false)}>
+                <Button
+                  variant="outline"
+                  onClick={() => setIsEditingBasic(false)}
+                >
                   Cancel
                 </Button>
                 <Button onClick={handleBasicInfoSubmit}>
@@ -339,7 +399,11 @@ const ApplicantProfile = () => {
             <div className="flex items-center space-x-6">
               <Avatar className="h-20 w-20">
                 {basicInfo.profilePhoto ? (
-                  <AvatarImage src={basicInfo.profilePhoto} alt={basicInfo.fullName} />
+                  <AvatarImage
+                  className="object-cover w-full h-full" 
+                    src={`http://localhost:4000/uploads/${basicInfo.profilePhoto}`}
+                    alt={basicInfo.fullName}
+                  />
                 ) : (
                   <AvatarFallback className="text-2xl">
                     {basicInfo.fullName
@@ -353,7 +417,9 @@ const ApplicantProfile = () => {
                 )}
               </Avatar>
               <div>
-                <h3 className="text-xl font-medium">{basicInfo.fullName || "Your Name"}</h3>
+                <h3 className="text-xl font-medium">
+                  {basicInfo.fullName || "Your Name"}
+                </h3>
                 <p className="text-muted-foreground">{basicInfo.email}</p>
               </div>
             </div>
@@ -366,7 +432,10 @@ const ApplicantProfile = () => {
         <CardHeader>
           <div className="flex justify-between items-center">
             <CardTitle>Education</CardTitle>
-            <Dialog open={educationDialogOpen} onOpenChange={setEducationDialogOpen}>
+            <Dialog
+              open={educationDialogOpen}
+              onOpenChange={setEducationDialogOpen}
+            >
               <DialogTrigger asChild>
                 <Button variant="outline" size="sm">
                   <Plus className="h-4 w-4 mr-2" /> Add Education
@@ -448,7 +517,10 @@ const ApplicantProfile = () => {
                   </div>
                 </div>
                 <DialogFooter>
-                  <Button variant="outline" onClick={() => setEducationDialogOpen(false)}>
+                  <Button
+                    variant="outline"
+                    onClick={() => setEducationDialogOpen(false)}
+                  >
                     Cancel
                   </Button>
                   <Button onClick={handleEducationSubmit}>
@@ -458,17 +530,25 @@ const ApplicantProfile = () => {
               </DialogContent>
             </Dialog>
           </div>
-          <CardDescription>Your academic background and qualifications</CardDescription>
+          <CardDescription>
+            Your academic background and qualifications
+          </CardDescription>
         </CardHeader>
         <CardContent>
           {applicant.education.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
-              <p>No education added yet. Add your academic background to enhance your profile.</p>
+              <p>
+                No education added yet. Add your academic background to enhance
+                your profile.
+              </p>
             </div>
           ) : (
             <div className="space-y-6">
               {applicant.education.map((edu) => (
-                <div key={edu.id} className="border-b pb-4 last:border-b-0 last:pb-0">
+                <div
+                  key={edu.id}
+                  className="border-b pb-4 last:border-b-0 last:pb-0"
+                >
                   <div className="flex justify-between items-start">
                     <div>
                       <h3 className="font-medium text-lg">{edu.institution}</h3>
@@ -476,7 +556,8 @@ const ApplicantProfile = () => {
                         {edu.degree} in {edu.fieldOfStudy}
                       </p>
                       <p className="text-sm text-muted-foreground">
-                        {new Date(edu.startDate).toLocaleDateString()} - {new Date(edu.endDate).toLocaleDateString()}
+                        {new Date(edu.startDate).toLocaleDateString()} -{" "}
+                        {new Date(edu.endDate).toLocaleDateString()}
                       </p>
                       {edu.description && (
                         <p className="text-sm mt-2">{edu.description}</p>
@@ -548,7 +629,9 @@ const ApplicantProfile = () => {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="Beginner">Beginner</SelectItem>
-                        <SelectItem value="Intermediate">Intermediate</SelectItem>
+                        <SelectItem value="Intermediate">
+                          Intermediate
+                        </SelectItem>
                         <SelectItem value="Advanced">Advanced</SelectItem>
                         <SelectItem value="Expert">Expert</SelectItem>
                       </SelectContent>
@@ -556,7 +639,10 @@ const ApplicantProfile = () => {
                   </div>
                 </div>
                 <DialogFooter>
-                  <Button variant="outline" onClick={() => setSkillDialogOpen(false)}>
+                  <Button
+                    variant="outline"
+                    onClick={() => setSkillDialogOpen(false)}
+                  >
                     Cancel
                   </Button>
                   <Button onClick={handleSkillSubmit}>
@@ -566,12 +652,17 @@ const ApplicantProfile = () => {
               </DialogContent>
             </Dialog>
           </div>
-          <CardDescription>Technical and soft skills that you possess</CardDescription>
+          <CardDescription>
+            Technical and soft skills that you possess
+          </CardDescription>
         </CardHeader>
         <CardContent>
           {applicant.skills.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
-              <p>No skills added yet. Add skills to help match you with relevant job opportunities.</p>
+              <p>
+                No skills added yet. Add skills to help match you with relevant
+                job opportunities.
+              </p>
             </div>
           ) : (
             <div className="flex flex-wrap gap-2">
@@ -612,7 +703,10 @@ const ApplicantProfile = () => {
         <CardHeader>
           <div className="flex justify-between items-center">
             <CardTitle>Experience</CardTitle>
-            <Dialog open={experienceDialogOpen} onOpenChange={setExperienceDialogOpen}>
+            <Dialog
+              open={experienceDialogOpen}
+              onOpenChange={setExperienceDialogOpen}
+            >
               <DialogTrigger asChild>
                 <Button variant="outline" size="sm">
                   <Plus className="h-4 w-4 mr-2" /> Add Experience
@@ -708,7 +802,10 @@ const ApplicantProfile = () => {
                   </div>
                 </div>
                 <DialogFooter>
-                  <Button variant="outline" onClick={() => setExperienceDialogOpen(false)}>
+                  <Button
+                    variant="outline"
+                    onClick={() => setExperienceDialogOpen(false)}
+                  >
                     Cancel
                   </Button>
                   <Button onClick={handleExperienceSubmit}>
@@ -718,25 +815,36 @@ const ApplicantProfile = () => {
               </DialogContent>
             </Dialog>
           </div>
-          <CardDescription>Your work history and professional experience</CardDescription>
+          <CardDescription>
+            Your work history and professional experience
+          </CardDescription>
         </CardHeader>
         <CardContent>
           {applicant.experience.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
-              <p>No experience added yet. Add your work history to showcase your professional background.</p>
+              <p>
+                No experience added yet. Add your work history to showcase your
+                professional background.
+              </p>
             </div>
           ) : (
             <div className="space-y-6">
               {applicant.experience.map((exp) => (
-                <div key={exp.id} className="border-b pb-4 last:border-b-0 last:pb-0">
+                <div
+                  key={exp.id}
+                  className="border-b pb-4 last:border-b-0 last:pb-0"
+                >
                   <div className="flex justify-between items-start">
                     <div>
                       <h3 className="font-medium text-lg">{exp.position}</h3>
-                      <p>{exp.company} • {exp.location}</p>
+                      <p>
+                        {exp.company} • {exp.location}
+                      </p>
                       <p className="text-sm text-muted-foreground">
-                        {new Date(exp.startDate).toLocaleDateString()} - {
-                          exp.current ? 'Present' : new Date(exp.endDate!).toLocaleDateString()
-                        }
+                        {new Date(exp.startDate).toLocaleDateString()} -{" "}
+                        {exp.current
+                          ? "Present"
+                          : new Date(exp.endDate!).toLocaleDateString()}
                       </p>
                       {exp.description && (
                         <p className="text-sm mt-2">{exp.description}</p>
@@ -771,7 +879,10 @@ const ApplicantProfile = () => {
         <CardHeader>
           <div className="flex justify-between items-center">
             <CardTitle>Languages</CardTitle>
-            <Dialog open={languageDialogOpen} onOpenChange={setLanguageDialogOpen}>
+            <Dialog
+              open={languageDialogOpen}
+              onOpenChange={setLanguageDialogOpen}
+            >
               <DialogTrigger asChild>
                 <Button variant="outline" size="sm">
                   <Plus className="h-4 w-4 mr-2" /> Add Language
@@ -808,7 +919,9 @@ const ApplicantProfile = () => {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="Basic">Basic</SelectItem>
-                        <SelectItem value="Conversational">Conversational</SelectItem>
+                        <SelectItem value="Conversational">
+                          Conversational
+                        </SelectItem>
                         <SelectItem value="Fluent">Fluent</SelectItem>
                         <SelectItem value="Native">Native</SelectItem>
                       </SelectContent>
@@ -816,7 +929,10 @@ const ApplicantProfile = () => {
                   </div>
                 </div>
                 <DialogFooter>
-                  <Button variant="outline" onClick={() => setLanguageDialogOpen(false)}>
+                  <Button
+                    variant="outline"
+                    onClick={() => setLanguageDialogOpen(false)}
+                  >
                     Cancel
                   </Button>
                   <Button onClick={handleLanguageSubmit}>
@@ -831,7 +947,10 @@ const ApplicantProfile = () => {
         <CardContent>
           {applicant.languages.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
-              <p>No languages added yet. Add languages to showcase your communication skills.</p>
+              <p>
+                No languages added yet. Add languages to showcase your
+                communication skills.
+              </p>
             </div>
           ) : (
             <div className="flex flex-wrap gap-2">

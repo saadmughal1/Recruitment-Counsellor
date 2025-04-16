@@ -7,12 +7,7 @@ interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   login: (email: string, password: string, userType: UserType) => Promise<void>;
-  register: (
-    email: string,
-    password: string,
-    fullname: string,
-    userType: UserType
-  ) => Promise<void>;
+  register: (formData: FormData) => Promise<void>;
   logout: () => void;
 }
 
@@ -48,11 +43,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         }
       );
 
+// console.log(response)
+
       const newUser: User = {
         token: response.data.token,
         fullname: response.data.fullname,
         userType: userType,
         email: email,
+        profilePhoto: response.data?.profilePhoto,
       };
 
       setUser(newUser);
@@ -74,21 +72,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
-  const register = async (
-    email: string,
-    password: string,
-    fullname: string,
-    userType: UserType
-  ) => {
+  const register = async (formData: FormData) => {
     setIsLoading(true);
+
     try {
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      await axios.post("http://localhost:4000/api/user/register", {
-        fullname: fullname,
-        email: email,
-        password: password,
-        role: userType,
+      await axios.post("http://localhost:4000/api/user/register", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
       });
 
       toast({

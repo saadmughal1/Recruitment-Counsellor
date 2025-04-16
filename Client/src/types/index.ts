@@ -6,6 +6,7 @@ export interface User {
   fullname: string;
   email: string;
   userType: UserType;
+  profilePhoto?: string;
 }
 
 export interface Applicant {
