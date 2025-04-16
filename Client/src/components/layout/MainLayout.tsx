@@ -101,15 +101,21 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                     <Link to="/profile" className="flex items-center space-x-2 p-2 hover:bg-gray-100 rounded">
                       <span>Profile</span>
                     </Link>
+
+                    
                     {user?.userType === "applicant" ? (
                       <Link to="/jobs" className="flex items-center space-x-2 p-2 hover:bg-gray-100 rounded">
                         <span>Jobs</span>
                       </Link>
-                    ) : (
+                    ) 
+                    :
+                     (
                       <Link to="/applicants" className="flex items-center space-x-2 p-2 hover:bg-gray-100 rounded">
                         <span>Applicants</span>
                       </Link>
-                    )}
+                    )
+                    
+                    }
                     <Link to="/connections" className="flex items-center space-x-2 p-2 hover:bg-gray-100 rounded">
                       <span>Connections</span>
                     </Link>
@@ -193,7 +199,6 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       <footer className="bg-white border-t border-gray-200 py-6">
         <div className="container mx-auto px-4 text-center text-gray-500 text-sm">
           <p>© 2025 AI Recruitment Counsellor. All Rights Reserved.</p>
-          <p className="mt-1">A frontend-only web application for recruitment matching.</p>
         </div>
       </footer>
     </div>

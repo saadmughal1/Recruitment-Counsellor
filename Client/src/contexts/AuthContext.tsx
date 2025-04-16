@@ -1,19 +1,26 @@
-
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { User, UserType } from "@/types";
 import { useToast } from "@/components/ui/use-toast";
+import axios from "axios";
 
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   login: (email: string, password: string, userType: UserType) => Promise<void>;
-  register: (email: string, password: string, userType: UserType) => Promise<void>;
+  register: (
+    email: string,
+    password: string,
+    fullname: string,
+    userType: UserType
+  ) => Promise<void>;
   logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
@@ -30,20 +37,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = async (email: string, password: string, userType: UserType) => {
     setIsLoading(true);
     try {
-      // Simulating API call delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // In a real app, we'd validate credentials with a backend
-      // For this frontend-only app, we'll just create a user
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      const response = await axios.post(
+        "http://localhost:4000/api/user/login",
+        {
+          email: email,
+          role: userType,
+          password: password,
+        }
+      );
+
       const newUser: User = {
-        id: Math.random().toString(36).substring(2, 9),
-        email,
-        userType
+        token: response.data.token,
+        fullname: response.data.fullname,
+        userType: userType,
+        email: email,
       };
-      
+
       setUser(newUser);
       localStorage.setItem("user", JSON.stringify(newUser));
-      
+
       toast({
         title: "Login successful",
         description: "Welcome back to your dashboard",
@@ -60,53 +74,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const register = async (email: string, password: string, userType: UserType) => {
+  const register = async (
+    email: string,
+    password: string,
+    fullname: string,
+    userType: UserType
+  ) => {
     setIsLoading(true);
     try {
-      // Simulating API call delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Create a new user
-      const newUser: User = {
-        id: Math.random().toString(36).substring(2, 9),
-        email,
-        userType
-      };
-      
-      setUser(newUser);
-      localStorage.setItem("user", JSON.stringify(newUser));
-      
-      // Also initialize profile data based on user type
-      if (userType === 'applicant') {
-        const applicantData = {
-          id: newUser.id,
-          fullName: "",
-          email: email,
-          education: [],
-          skills: [],
-          experience: [],
-          languages: [],
-        };
-        localStorage.setItem("applicant-" + newUser.id, JSON.stringify(applicantData));
-      } else {
-        const recruiterData = {
-          id: newUser.id,
-          companyName: "",
-          companyInfo: "",
-          recruiterName: "",
-          email: email,
-        };
-        localStorage.setItem("recruiter-" + newUser.id, JSON.stringify(recruiterData));
-      }
-      
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      await axios.post("http://localhost:4000/api/user/register", {
+        fullname: fullname,
+        email: email,
+        password: password,
+        role: userType,
+      });
+
       toast({
         title: "Registration successful",
         description: "Your account has been created",
       });
     } catch (error) {
+      const errorMessage =
+        error.response?.data?.message || "Please try again later";
+
       toast({
         title: "Registration failed",
-        description: "Please try again later",
+        description: errorMessage,
         variant: "destructive",
       });
       throw error;

@@ -1,7 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { Briefcase, Users, Building, BadgeCheck, Search } from "lucide-react";
+import { Briefcase, Users, Building, BadgeCheck, Filter } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 const Landing = () => {
@@ -85,21 +85,22 @@ const Landing = () => {
             </Card>
             
             <Card className="border-none shadow-md">
-              <CardHeader className="pb-2">
-                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
-                  <Search className="h-6 w-6 text-primary" />
-                </div>
-                <CardTitle>AI-Powered Matching</CardTitle>
-                <CardDescription>
-                  Our intelligent system connects the right talent with the right opportunity
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">
-                  Advanced algorithms analyze skills and requirements to create optimal matches.
-                </p>
-              </CardContent>
-            </Card>
+  <CardHeader className="pb-2">
+    <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
+      <Filter className="h-6 w-6 text-primary" /> {/* Use a filter icon or similar */}
+    </div>
+    <CardTitle>Smart Filters & Insights</CardTitle>
+    <CardDescription>
+      Narrow down opportunities and candidates with customizable filters
+    </CardDescription>
+  </CardHeader>
+  <CardContent>
+    <p className="text-muted-foreground">
+      Personalize your search using filters like skills, location, experience, and more — making discovery faster and more relevant.
+    </p>
+  </CardContent>
+</Card>
+
             
             <Card className="border-none shadow-md">
               <CardHeader className="pb-2">
@@ -139,13 +140,14 @@ const Landing = () => {
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
             <div>
-              <h3 className="text-xl font-semibold mb-4 text-white">
-                <span className="bg-primary text-white px-2 py-1 rounded mr-1">AI</span>
-                Recruitment Counsellor
-              </h3>
-              <p className="mb-4">
-                Connecting talent with opportunity through intelligent matching.
-              </p>
+            <h3 className="text-xl font-semibold mb-4 text-white">
+  <span className="bg-primary text-white px-2 py-1 rounded mr-1">Smart</span>
+  Recruitment Counsellor
+</h3>
+<p className="mb-4">
+  Connecting talent with opportunity through intelligent matching.
+</p>
+
             </div>
             <div>
               <h3 className="text-xl font-semibold mb-4 text-white">For Applicants</h3>
@@ -168,7 +170,6 @@ const Landing = () => {
           </div>
           <div className="border-t border-gray-800 pt-8 text-center">
             <p>© 2025 AI Recruitment Counsellor. All Rights Reserved.</p>
-            <p className="text-sm mt-2">This is a demo frontend application. No real data is stored.</p>
           </div>
         </div>
       </footer>

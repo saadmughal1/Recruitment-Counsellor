@@ -1,30 +1,31 @@
-require('dotenv').config();
+require("dotenv").config();
 
-const express = require('express');
+const express = require("express");
 
-const cors = require('cors');
-const connectDB = require('./config/db');
+const cors = require("cors");
+const connectDB = require("./config/db");
 const app = express();
-const path = require('path')
+const path = require("path");
+
+const userRoutes = require("./routes/userRoutes");
 
 connectDB();
 
 app.use(cors());
 
-app.use('/uploads', express.static(path.join(__dirname, 'uploads'))); 
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-
-const PORT = process.env.PORT ;
+const PORT = process.env.PORT;
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-app.get('/', (req, res) => {
-    res.send('API is working');
+app.get("/", (req, res) => {
+  res.send("API is working");
 });
 
+app.use("/api/user", userRoutes);
 
 app.listen(PORT, () => {
-    console.log('Server is running on port ' + PORT);
-})
-
+  console.log("Server is running on port " + PORT);
+});

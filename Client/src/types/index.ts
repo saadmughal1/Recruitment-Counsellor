@@ -2,7 +2,8 @@
 export type UserType = 'applicant' | 'recruiter';
 
 export interface User {
-  id: string;
+  token: string;
+  fullname: string;
   email: string;
   userType: UserType;
 }
