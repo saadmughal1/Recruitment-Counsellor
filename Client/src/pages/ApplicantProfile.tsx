@@ -33,27 +33,16 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Pencil, Plus, Trash2, Save } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
 
 import { useAuth } from "@/contexts/AuthContext";
+import Education from "@/components/EducationComponent";
 
 const ApplicantProfile = () => {
   const { user } = useAuth();
 
   const {
     applicant,
-    updateApplicant,
-    addEducation,
-    updateEducation,
-    deleteEducation,
+
     addSkill,
     updateSkill,
     deleteSkill,
@@ -73,18 +62,7 @@ const ApplicantProfile = () => {
     profilePhoto: user?.profilePhoto || "",
   });
 
-
-
   // Form states for adding/editing items
-  const [educationForm, setEducationForm] = useState({
-    id: "",
-    institution: "",
-    degree: "",
-    fieldOfStudy: "",
-    startDate: "",
-    endDate: "",
-    description: "",
-  });
 
   const [skillForm, setSkillForm] = useState({
     id: "",
@@ -110,7 +88,7 @@ const ApplicantProfile = () => {
   });
 
   // Dialog control states
-  const [educationDialogOpen, setEducationDialogOpen] = useState(false);
+
   const [skillDialogOpen, setSkillDialogOpen] = useState(false);
   const [experienceDialogOpen, setExperienceDialogOpen] = useState(false);
   const [languageDialogOpen, setLanguageDialogOpen] = useState(false);
@@ -126,47 +104,8 @@ const ApplicantProfile = () => {
   };
 
   const handleBasicInfoSubmit = () => {
-    updateApplicant(basicInfo);
-    setIsEditingBasic(false);
-  };
-
-  // Education handlers
-  const handleEducationChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    setEducationForm({
-      ...educationForm,
-      [e.target.name]: e.target.value,
-    });
-  };
-
-  const handleEducationSubmit = () => {
-    if (educationForm.id) {
-      updateEducation(educationForm);
-    } else {
-      // Remove the id field before adding
-      const { id, ...rest } = educationForm;
-      addEducation(rest);
-    }
-    setEducationDialogOpen(false);
-    resetEducationForm();
-  };
-
-  const editEducation = (education: any) => {
-    setEducationForm(education);
-    setEducationDialogOpen(true);
-  };
-
-  const resetEducationForm = () => {
-    setEducationForm({
-      id: "",
-      institution: "",
-      degree: "",
-      fieldOfStudy: "",
-      startDate: "",
-      endDate: "",
-      description: "",
-    });
+    // updateApplicant(basicInfo);
+    // setIsEditingBasic(false);
   };
 
   // Skill handlers
@@ -329,7 +268,7 @@ const ApplicantProfile = () => {
         <CardHeader>
           <div className="flex justify-between items-center">
             <CardTitle>Basic Information</CardTitle>
-            {!isEditingBasic && (
+            {/* {!isEditingBasic && (
               <Button
                 variant="outline"
                 size="sm"
@@ -337,7 +276,7 @@ const ApplicantProfile = () => {
               >
                 <Pencil className="h-4 w-4 mr-2" /> Edit
               </Button>
-            )}
+            )} */}
           </div>
           <CardDescription>
             Your personal information visible to recruiters
@@ -355,6 +294,7 @@ const ApplicantProfile = () => {
                     value={basicInfo.fullName}
                     onChange={handleBasicInfoChange}
                     placeholder="Enter your full name"
+                    required
                   />
                 </div>
                 <div className="flex-1">
@@ -375,11 +315,11 @@ const ApplicantProfile = () => {
                 <Label htmlFor="profilePhoto">Profile Photo </Label>
                 <Input
                   required
-                  id="profilePhoto"
+                  id="profile-photo"
                   name="profilePhoto"
                   type="file"
                   onChange={handleFileChange}
-                  placeholder="Select profile photo"
+                  accept="image/png, image/jpeg, image/jpg"
                 />
               </div>
 
@@ -400,7 +340,7 @@ const ApplicantProfile = () => {
               <Avatar className="h-20 w-20">
                 {basicInfo.profilePhoto ? (
                   <AvatarImage
-                  className="object-cover w-full h-full" 
+                    className="object-cover w-full h-full"
                     src={`http://localhost:4000/uploads/${basicInfo.profilePhoto}`}
                     alt={basicInfo.fullName}
                   />
@@ -428,164 +368,7 @@ const ApplicantProfile = () => {
       </Card>
 
       {/* Education */}
-      <Card className="mb-8">
-        <CardHeader>
-          <div className="flex justify-between items-center">
-            <CardTitle>Education</CardTitle>
-            <Dialog
-              open={educationDialogOpen}
-              onOpenChange={setEducationDialogOpen}
-            >
-              <DialogTrigger asChild>
-                <Button variant="outline" size="sm">
-                  <Plus className="h-4 w-4 mr-2" /> Add Education
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>
-                    {educationForm.id ? "Edit Education" : "Add Education"}
-                  </DialogTitle>
-                  <DialogDescription>
-                    Add your academic qualifications and educational background
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="grid gap-4 py-4">
-                  <div>
-                    <Label htmlFor="institution">Institution</Label>
-                    <Input
-                      id="institution"
-                      name="institution"
-                      value={educationForm.institution}
-                      onChange={handleEducationChange}
-                      placeholder="University or School Name"
-                    />
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="degree">Degree</Label>
-                      <Input
-                        id="degree"
-                        name="degree"
-                        value={educationForm.degree}
-                        onChange={handleEducationChange}
-                        placeholder="Bachelor's, Master's, etc."
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="fieldOfStudy">Field of Study</Label>
-                      <Input
-                        id="fieldOfStudy"
-                        name="fieldOfStudy"
-                        value={educationForm.fieldOfStudy}
-                        onChange={handleEducationChange}
-                        placeholder="Computer Science, Business, etc."
-                      />
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="startDate">Start Date</Label>
-                      <Input
-                        id="startDate"
-                        name="startDate"
-                        type="date"
-                        value={educationForm.startDate}
-                        onChange={handleEducationChange}
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="endDate">End Date</Label>
-                      <Input
-                        id="endDate"
-                        name="endDate"
-                        type="date"
-                        value={educationForm.endDate}
-                        onChange={handleEducationChange}
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <Label htmlFor="description">Description</Label>
-                    <Textarea
-                      id="description"
-                      name="description"
-                      value={educationForm.description}
-                      onChange={handleEducationChange}
-                      placeholder="Additional information about your studies"
-                    />
-                  </div>
-                </div>
-                <DialogFooter>
-                  <Button
-                    variant="outline"
-                    onClick={() => setEducationDialogOpen(false)}
-                  >
-                    Cancel
-                  </Button>
-                  <Button onClick={handleEducationSubmit}>
-                    {educationForm.id ? "Update" : "Add"}
-                  </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
-          </div>
-          <CardDescription>
-            Your academic background and qualifications
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {applicant.education.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              <p>
-                No education added yet. Add your academic background to enhance
-                your profile.
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-6">
-              {applicant.education.map((edu) => (
-                <div
-                  key={edu.id}
-                  className="border-b pb-4 last:border-b-0 last:pb-0"
-                >
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <h3 className="font-medium text-lg">{edu.institution}</h3>
-                      <p>
-                        {edu.degree} in {edu.fieldOfStudy}
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        {new Date(edu.startDate).toLocaleDateString()} -{" "}
-                        {new Date(edu.endDate).toLocaleDateString()}
-                      </p>
-                      {edu.description && (
-                        <p className="text-sm mt-2">{edu.description}</p>
-                      )}
-                    </div>
-                    <div className="flex space-x-1">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => editEducation(edu)}
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => deleteEducation(edu.id)}
-                      >
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      <Education />
 
       {/* Skills */}
       <Card className="mb-8">

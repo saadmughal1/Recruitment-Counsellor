@@ -8,6 +8,7 @@ const app = express();
 const path = require("path");
 
 const userRoutes = require("./routes/userRoutes");
+const educationRoutes = require("./routes/educationRoutes");
 
 connectDB();
 
@@ -25,6 +26,7 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api/user", userRoutes);
+app.use("/api/education", educationRoutes);
 
 app.listen(PORT, () => {
   console.log("Server is running on port " + PORT);

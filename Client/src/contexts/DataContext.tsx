@@ -20,7 +20,7 @@ interface DataContextType {
   // Applicant data
   applicant: Applicant | null;
   updateApplicant: (data: Partial<Applicant>) => void;
-  addEducation: (education: Omit<Education, "id">) => void;
+  addEducation: (education: Education) => void;
   updateEducation: (education: Education) => void;
   deleteEducation: (id: string) => void;
   addSkill: (skill: Omit<Skill, "id">) => void;
@@ -91,6 +91,9 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({
   const { user } = useAuth();
   const { toast } = useToast();
 
+  const tok = localStorage.getItem("user");
+  const token = JSON.parse(tok)?.token;
+
   // State for applicant and recruiter
   const [applicant, setApplicant] = useState<Applicant | null>(null);
   const [recruiter, setRecruiter] = useState<Recruiter | null>(null);
@@ -120,22 +123,36 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({
 
       // Load all applicants and recruiters for matching
       loadAllUsers();
-      
-      if (user.userType == "applicant") {
-        const newUser: Applicant = {
-          fullName: user.fullname,
-          email: user.email,
-          profilePhoto: user.profilePhoto,
-          education: [],
-          skills: [],
-          experience: [],
-          languages: [],
-        };
 
-        setApplicant(newUser);
+      if (user.userType == "applicant") {
+        loadApplicantData();
       }
     }
   }, [user]);
+
+  const loadApplicantData = async () => {
+    const applicantEducation = await fetchEducation();
+
+    const newUser: Applicant = {
+      fullName: user.fullname,
+      email: user.email,
+      profilePhoto: user.profilePhoto,
+      education: applicantEducation,
+      skills: [],
+      experience: [],
+      languages: [],
+    };
+
+    setApplicant(newUser);
+  };
+
+  const fetchEducation = async () => {
+    try {
+     
+    } catch (error) {
+      
+    }
+  };
 
   // Load all users from localStorage for matching purposes
   const loadAllUsers = () => {
@@ -163,103 +180,43 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   // Applicant methods
-  const updateApplicant = async (data: Partial<Applicant>) => {
-    if (data) {
-      // setApplicant(updatedApplicant);
+  const updateApplicant = async (data: Partial<Applicant>) => {};
 
-      const response = await axios.post("http://localhost/api/user/update", {
-        fullname: data.fullName,
-        email: data.email,
-        profilePhoto: data.profilePhoto,
-      });
-
-      console.log(response);
-
-      toast({
-        title: "Profile updated",
-        description: "Your profile information has been updated successfully",
-      });
-    }
+  const addEducation = async (education: Education) => {
+  
   };
 
-  const addEducation = (education: Omit<Education, "id">) => {
-    if (applicant) {
-      const newEducation = {
-        ...education,
-        id: Math.random().toString(36).substring(2, 9),
-      };
-      const updatedApplicant = {
-        ...applicant,
-        education: [...applicant.education, newEducation],
-      };
-
-      setApplicant(updatedApplicant);
-      localStorage.setItem(
-        `applicant-${applicant.id}`,
-        JSON.stringify(updatedApplicant)
+  const updateEducation = async (education: Education) => {
+    try {
+      await axios.put(
+        `http://localhost:4000/api/education/${education.id}`,
+        education,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
       );
-
-      // Update in allApplicants
-      setAllApplicants((prev) =>
-        prev.map((a) => (a.id === updatedApplicant.id ? updatedApplicant : a))
-      );
-
-      toast({
-        title: "Education added",
-        description: "New education entry has been added to your profile",
-      });
-    }
-  };
-
-  const updateEducation = (education: Education) => {
-    if (applicant) {
-      const updatedApplicant = {
-        ...applicant,
-        education: applicant.education.map((e) =>
-          e.id === education.id ? education : e
-        ),
-      };
-
-      setApplicant(updatedApplicant);
-      localStorage.setItem(
-        `applicant-${applicant.id}`,
-        JSON.stringify(updatedApplicant)
-      );
-
-      // Update in allApplicants
-      setAllApplicants((prev) =>
-        prev.map((a) => (a.id === updatedApplicant.id ? updatedApplicant : a))
-      );
-
       toast({
         title: "Education updated",
-        description: "Education entry has been updated successfully",
+        description: "Updated successfully",
       });
+      // Refetch or update state
+    } catch (error) {
+      console.error("Update error", error);
     }
   };
 
-  const deleteEducation = (id: string) => {
-    if (applicant) {
-      const updatedApplicant = {
-        ...applicant,
-        education: applicant.education.filter((e) => e.id !== id),
-      };
-
-      setApplicant(updatedApplicant);
-      localStorage.setItem(
-        `applicant-${applicant.id}`,
-        JSON.stringify(updatedApplicant)
-      );
-
-      // Update in allApplicants
-      setAllApplicants((prev) =>
-        prev.map((a) => (a.id === updatedApplicant.id ? updatedApplicant : a))
-      );
-
+  const deleteEducation = async (id: string) => {
+    try {
+      await axios.delete(`http://localhost:4000/api/education/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       toast({
         title: "Education deleted",
-        description: "Education entry has been removed from your profile",
+        description: "Deleted successfully",
       });
+      // Refetch or update state
+    } catch (error) {
+      console.error("Delete error", error);
     }
   };
 

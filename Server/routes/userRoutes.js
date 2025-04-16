@@ -33,6 +33,5 @@ router.post("/register", upload.single("profilePhoto"), register);
 
 
 router.post("/login", login);
-router.post("/update", upload.single("profilePhoto"), update);
 
 module.exports = router;

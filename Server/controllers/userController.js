@@ -83,61 +83,8 @@ const login = async (req, res) => {
   }
 };
 
-const update = async (req, res) => {
-  try {
-    const authHeader = req.headers["authorization"];
-
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return res
-        .status(401)
-        .json({ message: "Unauthorized: No token provided" });
-    }
-
-    const token = authHeader.split(" ")[1];
-
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    console.log(decoded);
-    const { fullname, email } = req.body;
-
-    const file = req.profilePhoto;
-
-    const userId = decoded.id;
-
-    const user = await User.findById(userId);
-    if (!user) {
-      return res
-        .status(401)
-        .json({ message: "User not found or not authenticated" });
-    }
-
-    if (!file) {
-      return res.status(400).json({ message: "No file uploaded" });
-    }
-
-    const imgName = req.file.filename;
-
-    const updatedUser = new User({
-      email: email,
-      fullname: fullname,
-      profilePhoto: imgName,
-    });
-
-    await updatedUser.save();
-    res
-      .status(200)
-      .json({ message: "User Updated successfully", data: updatedUser });
-  } catch (err) {
-    console.error(err);
-
-    return res.status(500).json({
-      message: "Server error, please try again later",
-      error: err.message || "Unknown error",
-    });
-  }
-};
 
 module.exports = {
   register,
   login,
-  update,
 };

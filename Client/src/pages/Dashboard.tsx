@@ -39,7 +39,7 @@ const Dashboard = () => {
   const activeConnections = [].length;
 
   const renderApplicantDashboard = () => {
-    const matchingJobs = applicant ? getMatchingJobPosts(applicant.id) : [];
+    const matchingJobs = []
 
     return (
       <>
