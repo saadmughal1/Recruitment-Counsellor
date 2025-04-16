@@ -10,7 +10,6 @@ export interface User {
 }
 
 export interface Applicant {
-  id: string;
   fullName: string;
   email: string;
   profilePhoto?: string;

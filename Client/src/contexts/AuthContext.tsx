@@ -43,8 +43,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         }
       );
 
-// console.log(response)
-
       const newUser: User = {
         token: response.data.token,
         fullname: response.data.fullname,

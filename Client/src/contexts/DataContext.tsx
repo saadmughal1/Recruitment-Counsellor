@@ -120,47 +120,19 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({
 
       // Load all applicants and recruiters for matching
       loadAllUsers();
+      
+      if (user.userType == "applicant") {
+        const newUser: Applicant = {
+          fullName: user.fullname,
+          email: user.email,
+          profilePhoto: user.profilePhoto,
+          education: [],
+          skills: [],
+          experience: [],
+          languages: [],
+        };
 
-      if (user.userType === "applicant") {
-        const storedApplicant = localStorage.getItem(`applicant-${user.id}`);
-        if (storedApplicant) {
-          setApplicant(JSON.parse(storedApplicant));
-        } else {
-          // Create empty profile if not exists
-          const newApplicant: Applicant = {
-            id: user.id,
-            fullName: "",
-            email: user.email,
-            education: [],
-            skills: [],
-            experience: [],
-            languages: [],
-          };
-          setApplicant(newApplicant);
-          localStorage.setItem(
-            `applicant-${user.id}`,
-            JSON.stringify(newApplicant)
-          );
-        }
-      } else {
-        const storedRecruiter = localStorage.getItem(`recruiter-${user.id}`);
-        if (storedRecruiter) {
-          setRecruiter(JSON.parse(storedRecruiter));
-        } else {
-          // Create empty profile if not exists
-          const newRecruiter: Recruiter = {
-            id: user.id,
-            companyName: "",
-            companyInfo: "",
-            recruiterName: "",
-            email: user.email,
-          };
-          setRecruiter(newRecruiter);
-          localStorage.setItem(
-            `recruiter-${user.id}`,
-            JSON.stringify(newRecruiter)
-          );
-        }
+        setApplicant(newUser);
       }
     }
   }, [user]);
@@ -201,7 +173,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({
         profilePhoto: data.profilePhoto,
       });
 
-      console.log(response)
+      console.log(response);
 
       toast({
         title: "Profile updated",
