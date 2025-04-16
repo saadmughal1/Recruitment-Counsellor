@@ -20,7 +20,7 @@ export interface Applicant {
 }
 
 export interface Education {
-  id: string,
+  _id: string,
   institution: string;
   degree: string;
   fieldOfStudy: string;

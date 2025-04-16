@@ -128,6 +128,36 @@ function EducationComponent() {
     }
   };
 
+  const deleteEducation = async (id: string) => {
+    try {
+      const confirmed = window.confirm(
+        "Are you sure you want to delete this education?"
+      );
+      if (!confirmed) return;
+
+      await axios.delete(`http://localhost:4000/api/education/delete/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      toast({
+        title: "Education deleted",
+        description: "The record was successfully removed.",
+      });
+
+      // Refresh the list
+      loadEducation();
+    } catch (error) {
+      console.error("Delete error", error);
+      toast({
+        title: "Error deleting education",
+        description: "Something went wrong. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <>
       <Card className="mb-8">
@@ -248,7 +278,7 @@ function EducationComponent() {
             <div className="space-y-6">
               {getEducation.map((edu, index) => (
                 <div
-                  key={edu.id || index}
+                  key={edu._id || index}
                   className="border-b pb-4 last:border-b-0 last:pb-0"
                 >
                   <div className="flex justify-between items-start">
@@ -276,7 +306,7 @@ function EducationComponent() {
                       <Button
                         variant="ghost"
                         size="icon"
-                        onClick={() => deleteEducation(edu.id)}
+                        onClick={() => deleteEducation(edu._id)}
                       >
                         <Trash2 className="h-4 w-4 text-destructive" />
                       </Button>

@@ -3,14 +3,7 @@ const jwt = require("jsonwebtoken");
 
 const addEducation = async (req, res) => {
   try {
-    const token = req.headers.authorization?.split(" ")[1];
-
-    if (!token) {
-      return res.status(401).json({ message: "Token missing" });
-    }
-
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const userId = decoded.id;
+    const userId = req.user.id;
 
     const {
       institution,
@@ -117,7 +110,6 @@ const updateEducation = async (req, res) => {
 const getMyEducation = async (req, res) => {
   try {
     const userId = req.user.id;
-
 
     const educationRecords = await Education.find({ user: userId });
 
