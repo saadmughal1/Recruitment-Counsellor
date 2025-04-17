@@ -7,6 +7,8 @@ export interface User {
   email: string;
   userType: UserType;
   profilePhoto?: string;
+  companyName?: string;
+  companyDescription?: string;
 }
 
 export interface Applicant {

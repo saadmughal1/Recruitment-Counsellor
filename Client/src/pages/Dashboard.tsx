@@ -258,47 +258,7 @@ const Dashboard = () => {
 
     return (
       <>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg">Company Profile</CardTitle>
-              <CardDescription>Manage your company details</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {recruiter && (
-                <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <span>Company Name</span>
-                    <Badge
-                      variant={recruiter.companyName ? "default" : "outline"}
-                    >
-                      {recruiter.companyName ? "Complete" : "Incomplete"}
-                    </Badge>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Company Info</span>
-                    <Badge
-                      variant={recruiter.companyInfo ? "default" : "outline"}
-                    >
-                      {recruiter.companyInfo ? "Complete" : "Incomplete"}
-                    </Badge>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Recruiter Name</span>
-                    <Badge
-                      variant={recruiter.recruiterName ? "default" : "outline"}
-                    >
-                      {recruiter.recruiterName ? "Complete" : "Incomplete"}
-                    </Badge>
-                  </div>
-                </div>
-              )}
-              <Button className="w-full mt-4" asChild>
-                <Link to="/profile">Update Profile</Link>
-              </Button>
-            </CardContent>
-          </Card>
-
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-lg">Job Posts</CardTitle>
@@ -333,9 +293,6 @@ const Dashboard = () => {
                   {activeConnections}
                 </div>
                 <p className="text-muted-foreground">active connections</p>
-                <div className="font-semibold text-md mt-2">
-                  {unreadNotifications} unread notifications
-                </div>
               </div>
               <Button className="w-full mt-4" asChild>
                 <Link to="/connections">Manage Connections</Link>

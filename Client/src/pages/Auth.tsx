@@ -29,10 +29,12 @@ const Auth: React.FC = () => {
   const [profilePhoto, setProfilePhoto] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
 
+  const [companyName, setCompanyName] = useState("");
+  const [companyDescription, setCompanyDescription] = useState("");
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files ? e.target.files[0] : null;
     if (file) {
-      // Check file type
       const validTypes = ["image/png", "image/jpeg", "image/jpg"];
       if (!validTypes.includes(file.type)) {
         toast({
@@ -44,8 +46,6 @@ const Auth: React.FC = () => {
       }
 
       setProfilePhoto(file);
-
-      // Set preview
       const reader = new FileReader();
       reader.onloadend = () => {
         setPreview(reader.result as string);
@@ -75,10 +75,29 @@ const Auth: React.FC = () => {
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !password || (userType === "applicant" && !profilePhoto)) {
+
+    if (!email || !password || !fullname) {
       toast({
         title: "Error",
-        description: "Please fill out all fields and upload a profile photo",
+        description: "Please fill out all required fields",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (userType === "applicant" && !profilePhoto) {
+      toast({
+        title: "Error",
+        description: "Please upload a profile photo",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (userType === "recruiter" && (!companyName || !companyDescription)) {
+      toast({
+        title: "Error",
+        description: "Please fill out company name and description",
         variant: "destructive",
       });
       return;
@@ -94,6 +113,11 @@ const Auth: React.FC = () => {
       formData.append("profilePhoto", profilePhoto);
     }
 
+    if (userType === "recruiter") {
+      formData.append("companyName", companyName);
+      formData.append("companyDescription", companyDescription);
+    }
+
     try {
       await register(formData);
       navigate("/dashboard");
@@ -107,9 +131,7 @@ const Auth: React.FC = () => {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-secondary mb-2">
-            <span className="bg-primary text-white px-2 py-1 rounded mr-1">
-              AI
-            </span>
+            <span className="bg-primary text-white px-2 py-1 rounded mr-1">AI</span>
             Recruitment Counsellor
           </h1>
           <p className="text-muted-foreground">
@@ -123,6 +145,7 @@ const Auth: React.FC = () => {
             <TabsTrigger value="register">Register</TabsTrigger>
           </TabsList>
 
+          {/* LOGIN TAB */}
           <TabsContent value="login">
             <Card>
               <CardHeader>
@@ -138,7 +161,6 @@ const Auth: React.FC = () => {
                     <Input
                       id="email-login"
                       type="email"
-                      placeholder=""
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
@@ -162,17 +184,11 @@ const Auth: React.FC = () => {
                       className="flex space-x-4"
                     >
                       <div className="flex items-center space-x-2">
-                        <RadioGroupItem
-                          value="applicant"
-                          id="applicant-login"
-                        />
+                        <RadioGroupItem value="applicant" id="applicant-login" />
                         <Label htmlFor="applicant-login">Applicant</Label>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <RadioGroupItem
-                          value="recruiter"
-                          id="recruiter-login"
-                        />
+                        <RadioGroupItem value="recruiter" id="recruiter-login" />
                         <Label htmlFor="recruiter-login">Recruiter</Label>
                       </div>
                     </RadioGroup>
@@ -187,6 +203,7 @@ const Auth: React.FC = () => {
             </Card>
           </TabsContent>
 
+          {/* REGISTER TAB */}
           <TabsContent value="register">
             <Card>
               <CardHeader>
@@ -202,7 +219,6 @@ const Auth: React.FC = () => {
                     <Input
                       id="fullname-register"
                       type="text"
-                      placeholder=""
                       value={fullname}
                       onChange={(e) => setFullname(e.target.value)}
                       required
@@ -213,7 +229,6 @@ const Auth: React.FC = () => {
                     <Input
                       id="email-register"
                       type="email"
-                      placeholder=""
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
@@ -230,7 +245,6 @@ const Auth: React.FC = () => {
                     />
                   </div>
 
-                  {/* Display Profile Photo Section Only for Applicants */}
                   <div className="space-y-2">
                     <Label>I am a</Label>
                     <RadioGroup
@@ -239,23 +253,16 @@ const Auth: React.FC = () => {
                       className="flex space-x-4"
                     >
                       <div className="flex items-center space-x-2">
-                        <RadioGroupItem
-                          value="applicant"
-                          id="applicant-register"
-                        />
+                        <RadioGroupItem value="applicant" id="applicant-register" />
                         <Label htmlFor="applicant-register">Applicant</Label>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <RadioGroupItem
-                          value="recruiter"
-                          id="recruiter-register"
-                        />
+                        <RadioGroupItem value="recruiter" id="recruiter-register" />
                         <Label htmlFor="recruiter-register">Recruiter</Label>
                       </div>
                     </RadioGroup>
                   </div>
 
-                  {/* Conditionally Render Profile Photo Field */}
                   {userType === "applicant" && (
                     <div className="space-y-2">
                       <Label htmlFor="profile-photo">Profile Photo</Label>
@@ -275,6 +282,31 @@ const Auth: React.FC = () => {
                         </div>
                       )}
                     </div>
+                  )}
+
+                  {userType === "recruiter" && (
+                    <>
+                      <div className="space-y-2">
+                        <Label htmlFor="company-name">Company Name</Label>
+                        <Input
+                          id="company-name"
+                          type="text"
+                          value={companyName}
+                          onChange={(e) => setCompanyName(e.target.value)}
+                          required
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="company-description">Company Description</Label>
+                        <Input
+                          id="company-description"
+                          type="text"
+                          value={companyDescription}
+                          onChange={(e) => setCompanyDescription(e.target.value)}
+                          required
+                        />
+                      </div>
+                    </>
                   )}
                 </CardContent>
                 <CardFooter>

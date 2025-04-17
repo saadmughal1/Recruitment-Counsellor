@@ -8,7 +8,8 @@ const fs = require("fs");
 const path = require("path");
 
 const register = async (req, res) => {
-  const { fullname, email, role, password } = req.body;
+  const { fullname, email, role, password, companyName, companyDescription } =
+    req.body;
 
   const profilePhoto = req.file?.filename;
 
@@ -25,7 +26,15 @@ const register = async (req, res) => {
       return res.status(400).json({ message: "Email already registered" });
     }
 
-    const newUser = new User({ fullname, email, password, role, profilePhoto });
+    const newUser = new User({
+      fullname,
+      email,
+      password,
+      role,
+      profilePhoto,
+      companyName,
+      companyDescription,
+    });
     await newUser.save();
 
     return res.status(201).json({ message: "User registered successfully" });
@@ -72,6 +81,8 @@ const login = async (req, res) => {
       email: email,
       token,
       profilePhoto: user.profilePhoto || null,
+      companyName: user.companyName || null,
+      companyDescription: user.companyDescription || null,
     });
   } catch (err) {
     console.error(err);
@@ -82,7 +93,6 @@ const login = async (req, res) => {
     });
   }
 };
-
 
 module.exports = {
   register,

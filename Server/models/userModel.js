@@ -28,6 +28,14 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: false,
     },
+    companyName: {
+      type: String,
+      trim: true,
+    },
+    companyDescription: {
+      type: String,
+      trim: true,
+    },
   },
   { timestamps: true }
 );
