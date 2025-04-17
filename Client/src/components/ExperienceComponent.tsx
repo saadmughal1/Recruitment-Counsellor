@@ -1,5 +1,3 @@
-// ExperienceComponent.tsx
-
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,6 +24,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import axios from "axios";
 import { Experience } from "@/types";
+import { Skeleton } from "@/components/ui/skeleton"; // Import Skeleton for loading states
 
 function ExperienceComponent() {
   const { toast } = useToast();
@@ -41,6 +40,8 @@ function ExperienceComponent() {
     current: false,
     description: "",
   });
+  const [loading, setLoading] = useState<boolean>(true); // State to handle loading of experiences
+  const [submitting, setSubmitting] = useState<boolean>(false); // State for form submission loading
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -71,6 +72,10 @@ function ExperienceComponent() {
 
   const loadExperiences = async () => {
     const token = JSON.parse(localStorage.getItem("user") || "{}")?.token;
+
+    // console.log("experience tok:" + token);
+
+    setLoading(true);
     try {
       const res = await axios.get("http://localhost:4000/api/experience/", {
         headers: { Authorization: `Bearer ${token}` },
@@ -78,6 +83,8 @@ function ExperienceComponent() {
       setExperiences(res.data?.data || []);
     } catch (error) {
       console.error("Error loading experiences", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -99,6 +106,7 @@ function ExperienceComponent() {
       return;
     }
 
+    setSubmitting(true); // Start submitting
     try {
       if (editingId) {
         await axios.put(
@@ -124,6 +132,8 @@ function ExperienceComponent() {
         variant: "destructive",
       });
       console.error(err);
+    } finally {
+      setSubmitting(false); // Stop submitting
     }
   };
 
@@ -221,8 +231,9 @@ function ExperienceComponent() {
               </div>
             </div>
             <DialogFooter>
-              <Button onClick={handleSubmit}>
-                {editingId ? "Update" : "Add"} Experience
+              <Button onClick={handleSubmit} disabled={submitting}>
+                {submitting ? "Submitting..." : editingId ? "Update" : "Add"}{" "}
+                Experience
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -230,9 +241,15 @@ function ExperienceComponent() {
       </CardHeader>
 
       <CardContent>
-        {experiences.length === 0 ? (
+        {loading ? (
+          <div className="space-y-4">
+            <Skeleton className="h-12 w-full" />
+            <Skeleton className="h-12 w-full" />
+            <Skeleton className="h-12 w-full" />
+          </div>
+        ) : experiences.length === 0 ? (
           <p className="text-sm text-gray-500">No experiences added yet.</p>
-        ) : (
+        ) : ( 
           <div className="space-y-4">
             {experiences.map((exp) => (
               <div

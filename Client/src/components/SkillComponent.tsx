@@ -30,6 +30,7 @@ function SkillComponent() {
   const [skillForm, setSkillForm] = useState({ name: "" });
   const [editingSkillId, setEditingSkillId] = useState<string | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [loading, setLoading] = useState(true); // NEW
 
   const resetForm = () => {
     setSkillForm({ name: "" });
@@ -44,15 +45,20 @@ function SkillComponent() {
   };
 
   const fetchSkills = async () => {
+    setLoading(true);
     const tok = localStorage.getItem("user");
     const token = JSON.parse(tok)?.token;
+    // console.log("skill tok:" + token);
+    if (!token) {
+      setLoading(false); // No token, stop loading
+      return;
+    }
 
     try {
       const res = await axios.get("http://localhost:4000/api/skill/", {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      //   console.log(res)
       setSkills(res?.data?.data || []);
     } catch (error) {
       toast({
@@ -60,6 +66,8 @@ function SkillComponent() {
         description: "Failed to load skills.",
         variant: "destructive",
       });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -80,6 +88,7 @@ function SkillComponent() {
       return;
     }
 
+    setLoading(true);
     try {
       if (editingSkillId) {
         await axios.put(
@@ -106,6 +115,8 @@ function SkillComponent() {
         description: "Could not save skill.",
         variant: "destructive",
       });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -118,15 +129,11 @@ function SkillComponent() {
     );
     if (!confirmed) return;
 
+    setLoading(true);
     try {
-      const res = await axios.delete(
-        `http://localhost:4000/api/skill/delete/${id}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-
-      //   console.log(res);
+      await axios.delete(`http://localhost:4000/api/skill/delete/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
       toast({
         title: "Skill deleted",
@@ -139,6 +146,8 @@ function SkillComponent() {
         description: "Failed to delete skill.",
         variant: "destructive",
       });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -204,7 +213,11 @@ function SkillComponent() {
       </CardHeader>
 
       <CardContent>
-        {skills.length === 0 ? (
+        {loading ? (
+          <div className="text-center py-8 text-muted-foreground">
+            <p>Loading skills...</p>
+          </div>
+        ) : skills.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
             <p>No skills added yet. Add your strengths to your profile.</p>
           </div>
@@ -216,7 +229,6 @@ function SkillComponent() {
                 className="bg-primary/10 rounded-full px-3 py-1.5 flex items-center"
               >
                 <span className="mr-2">{skill.name}</span>
-
                 <div className="flex ml-2">
                   <Button
                     variant="ghost"

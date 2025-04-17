@@ -25,6 +25,8 @@ import axios from "axios";
 
 import { Education } from "@/types"; // Adjust path if needed
 
+import MainLayout from "./layout/MainLayout";
+
 function EducationComponent() {
   const { toast } = useToast();
   const [educationDialogOpen, setEducationDialogOpen] = useState(false);
@@ -112,9 +114,9 @@ function EducationComponent() {
         });
       }
 
-      loadEducation();
-      setEducationDialogOpen(false);
       resetEducationForm();
+      setEducationDialogOpen(false);
+      loadEducation();
     } catch (error) {
       console.error("Education submission error", error);
       toast({
@@ -182,7 +184,6 @@ function EducationComponent() {
         }
       );
 
-      // console.log(education)
       setEducation(education?.data?.data || []);
     } catch (error) {
       console.error("education fetch error: ", error);
@@ -212,7 +213,7 @@ function EducationComponent() {
                   Add Education
                 </Button>
               </DialogTrigger>
-              <DialogContent>
+              <DialogContent className="max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                   <DialogTitle>
                     {editingEducationId ? "Edit Education" : "Add Education"}

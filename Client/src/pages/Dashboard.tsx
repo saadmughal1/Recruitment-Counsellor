@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 import { useAuth } from "@/contexts/AuthContext";
 import { useData } from "@/contexts/DataContext";
 import MainLayout from "@/components/layout/MainLayout";
@@ -8,41 +10,94 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
-import {
-  Briefcase,
-  Building,
-  UserCircle,
-  MessageSquare,
-  School,
-  Code,
-  Clock,
-  Globe,
-} from "lucide-react";
+
+import { useEffect } from "react";
+import axios from "axios";
 
 const Dashboard = () => {
   const { user } = useAuth();
-  const {
-    applicant,
-    recruiter,
-    connections,
-    notifications,
-    jobPosts,
-    getMatchingJobPosts,
-  } = useData();
+  const { applicant, recruiter } = useData();
+
+  const [isEducation, setEducation] = useState(false);
+  const [isSkill, setSkill] = useState(false);
+  const [isExperience, setExperience] = useState(false);
 
   const unreadNotifications = [].length;
 
   const activeConnections = [].length;
+
+  useEffect(() => {
+    loadEducation();
+    loadExperiences();
+    loadSkills();
+  }, []);
+
+  const loadEducation = async () => {
+    const tok = localStorage.getItem("user");
+    const token = JSON.parse(tok)?.token;
+
+    try {
+      const res = await axios.get("http://localhost:4000/api/education/", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (res.data.data.length > 0) {
+        setEducation(true);
+      }
+    } catch (error) {
+      console.error("education fetch error: ", error);
+    }
+  };
+
+  const loadExperiences = async () => {
+    const token = JSON.parse(localStorage.getItem("user") || "{}")?.token;
+
+    try {
+      const res = await axios.get("http://localhost:4000/api/experience/", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (res.data.data.length > 0) {
+        setExperience(true);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const loadSkills = async () => {
+    const tok = localStorage.getItem("user");
+    const token = JSON.parse(tok)?.token;
+    // console.log("skill tok:" + token);
+
+    try {
+      const res = await axios.get("http://localhost:4000/api/skill/", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (res.data.data.length > 0) {
+        setSkill(true);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const renderApplicantDashboard = () => {
     const matchingJobs = [];
 
     return (
       <>
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+          <p className="text-muted-foreground">
+            Welcome back, {user?.fullname}
+          </p>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <Card>
             <CardHeader className="pb-2">
@@ -62,26 +117,20 @@ const Dashboard = () => {
                   </div>
                   <div className="flex justify-between">
                     <span>Education</span>
-                    <Badge variant={0 > 0 ? "default" : "outline"}>
-                      {1 > 0 ? "Added" : "Missing"}
+                    <Badge variant={isEducation ? "default" : "outline"}>
+                      {isEducation ? "Added" : "Missing"}
                     </Badge>
                   </div>
                   <div className="flex justify-between">
                     <span>Skills</span>
-                    <Badge variant={1 > 0 ? "default" : "outline"}>
-                      {1 > 0 ? "Added" : "Missing"}
+                    <Badge variant={isSkill ? "default" : "outline"}>
+                      {isSkill ? "Added" : "Missing"}
                     </Badge>
                   </div>
                   <div className="flex justify-between">
                     <span>Experience</span>
-                    <Badge variant={1 > 0 ? "default" : "outline"}>
-                      {1 > 0 ? "Added" : "Missing"}
-                    </Badge>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Languages</span>
-                    <Badge variant={1 > 0 ? "default" : "outline"}>
-                      {1 > 0 ? "Added" : "Missing"}
+                    <Badge variant={isExperience ? "default" : "outline"}>
+                      {isExperience ? "Added" : "Missing"}
                     </Badge>
                   </div>
                 </div>
@@ -372,11 +421,6 @@ const Dashboard = () => {
 
   return (
     <MainLayout>
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-        <p className="text-muted-foreground">Welcome back, {user?.fullname}</p>
-      </div>
-
       {user?.userType === "applicant"
         ? renderApplicantDashboard()
         : renderRecruiterDashboard()}

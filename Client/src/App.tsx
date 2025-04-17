@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -20,6 +19,10 @@ import Connections from "@/pages/Connections";
 import ConnectionChat from "@/pages/ConnectionChat";
 import Notifications from "@/pages/Notifications";
 
+import EducationComponent from "./components/EducationComponent";
+
+
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -32,99 +35,101 @@ const App = () => (
           <DataProvider>
             <Routes>
               {/* Public routes */}
-              <Route 
-                path="/" 
-                element={
-                  <ProtectedRoute requireAuth={false}>
-                    <Landing />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/auth" 
-                element={
-                  <ProtectedRoute requireAuth={false}>
-                    <Auth />
-                  </ProtectedRoute>
-                } 
-              />
-              
-              {/* Protected routes (require authentication) */}
-              <Route 
-                path="/dashboard" 
-                element={
-                  <ProtectedRoute>
-                    <Dashboard />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/profile" 
-                element={
-                  <ProtectedRoute>
-                    <Profile />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/jobs" 
-                element={
-                  <ProtectedRoute>
-                    <JobListing />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/jobs/:id" 
-                element={
-                  <ProtectedRoute>
-                    <JobDetail />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/jobs/new" 
-                element={
-                  <ProtectedRoute requiredUserType="recruiter">
-                    <JobForm />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/connections" 
-                element={
-                  <ProtectedRoute>
-                    <Connections />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/connections/:id" 
-                element={
-                  <ProtectedRoute>
-                    <ConnectionChat />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/notifications" 
-                element={
-                  <ProtectedRoute>
-                    <Notifications />
-                  </ProtectedRoute>
-                } 
-              />
-              
-              {/* Update the index route to redirect to landing page */}
               <Route
-                path="/index" 
+                path="/"
                 element={
                   <ProtectedRoute requireAuth={false}>
                     <Landing />
                   </ProtectedRoute>
                 }
               />
-              
+              <Route
+                path="/auth"
+                element={
+                  <ProtectedRoute requireAuth={false}>
+                    <Auth />
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* Protected routes (require authentication) */}
+              <Route
+                path="/dashboard"
+                element={
+                  <ProtectedRoute>
+                    <Dashboard />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/profile"
+                element={
+                  <ProtectedRoute>
+                    <Profile />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/jobs"
+                element={
+                  <ProtectedRoute>
+                    <JobListing />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/jobs/:id"
+                element={
+                  <ProtectedRoute>
+                    <JobDetail />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/jobs/new"
+                element={
+                  <ProtectedRoute requiredUserType="recruiter">
+                    <JobForm />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/connections"
+                element={
+                  <ProtectedRoute>
+                    <Connections />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/connections/:id"
+                element={
+                  <ProtectedRoute>
+                    <ConnectionChat />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/notifications"
+                element={
+                  <ProtectedRoute>
+                    <Notifications />
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* Update the index route to redirect to landing page */}
+              <Route
+                path="/index"
+                element={
+                  <ProtectedRoute requireAuth={false}>
+                    <Landing />
+                  </ProtectedRoute>
+                }
+              />
+
               {/* 404 route */}
               <Route path="*" element={<NotFound />} />
             </Routes>
