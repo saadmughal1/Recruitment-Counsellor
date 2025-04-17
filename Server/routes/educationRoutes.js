@@ -10,9 +10,9 @@ const {
 
 const authMiddleware = require("../middleware/authMiddleware");
 
-router.get("/", authMiddleware, getMyEducation);
-router.post("/add", authMiddleware, addEducation);
+router.get("/", getMyEducation);
+router.post("/add", addEducation);
 router.delete("/delete/:id", deleteEducation);
-router.put("/update/:id", authMiddleware, updateEducation);
+router.put("/update/:id", updateEducation);
 
 module.exports = router;

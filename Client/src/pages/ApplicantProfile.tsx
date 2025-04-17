@@ -35,7 +35,9 @@ import { Pencil, Plus, Trash2, Save } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 
 import { useAuth } from "@/contexts/AuthContext";
+
 import Education from "@/components/EducationComponent";
+import Skill from "@/components/SkillComponent";
 
 const ApplicantProfile = () => {
   const { user } = useAuth();
@@ -43,9 +45,7 @@ const ApplicantProfile = () => {
   const {
     applicant,
 
-    addSkill,
-    updateSkill,
-    deleteSkill,
+    
     addExperience,
     updateExperience,
     deleteExperience,
@@ -64,11 +64,7 @@ const ApplicantProfile = () => {
 
   // Form states for adding/editing items
 
-  const [skillForm, setSkillForm] = useState({
-    id: "",
-    name: "",
-    level: "Intermediate",
-  });
+  
 
   const [experienceForm, setExperienceForm] = useState({
     id: "",
@@ -89,7 +85,7 @@ const ApplicantProfile = () => {
 
   // Dialog control states
 
-  const [skillDialogOpen, setSkillDialogOpen] = useState(false);
+  
   const [experienceDialogOpen, setExperienceDialogOpen] = useState(false);
   const [languageDialogOpen, setLanguageDialogOpen] = useState(false);
 
@@ -107,46 +103,7 @@ const ApplicantProfile = () => {
     // updateApplicant(basicInfo);
     // setIsEditingBasic(false);
   };
-
-  // Skill handlers
-  const handleSkillChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSkillForm({
-      ...skillForm,
-      [e.target.name]: e.target.value,
-    });
-  };
-
-  const handleSkillLevelChange = (value: string) => {
-    setSkillForm({
-      ...skillForm,
-      level: value as "Beginner" | "Intermediate" | "Advanced" | "Expert",
-    });
-  };
-
-  const handleSkillSubmit = () => {
-    if (skillForm.id) {
-      updateSkill(skillForm);
-    } else {
-      // Remove the id field before adding
-      const { id, ...rest } = skillForm;
-      addSkill(rest);
-    }
-    setSkillDialogOpen(false);
-    resetSkillForm();
-  };
-
-  const editSkill = (skill: any) => {
-    setSkillForm(skill);
-    setSkillDialogOpen(true);
-  };
-
-  const resetSkillForm = () => {
-    setSkillForm({
-      id: "",
-      name: "",
-      level: "Intermediate",
-    });
-  };
+  
 
   // Experience handlers
   const handleExperienceChange = (
@@ -371,115 +328,7 @@ const ApplicantProfile = () => {
       <Education />
 
       {/* Skills */}
-      <Card className="mb-8">
-        <CardHeader>
-          <div className="flex justify-between items-center">
-            <CardTitle>Skills</CardTitle>
-            <Dialog open={skillDialogOpen} onOpenChange={setSkillDialogOpen}>
-              <DialogTrigger asChild>
-                <Button variant="outline" size="sm">
-                  <Plus className="h-4 w-4 mr-2" /> Add Skill
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>
-                    {skillForm.id ? "Edit Skill" : "Add Skill"}
-                  </DialogTitle>
-                  <DialogDescription>
-                    Add technical or soft skills that you possess
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="grid gap-4 py-4">
-                  <div>
-                    <Label htmlFor="skillName">Skill Name</Label>
-                    <Input
-                      id="skillName"
-                      name="name"
-                      value={skillForm.name}
-                      onChange={handleSkillChange}
-                      placeholder="JavaScript, Project Management, etc."
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="skillLevel">Proficiency Level</Label>
-                    <Select
-                      value={skillForm.level}
-                      onValueChange={handleSkillLevelChange}
-                    >
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select proficiency level" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Beginner">Beginner</SelectItem>
-                        <SelectItem value="Intermediate">
-                          Intermediate
-                        </SelectItem>
-                        <SelectItem value="Advanced">Advanced</SelectItem>
-                        <SelectItem value="Expert">Expert</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-                <DialogFooter>
-                  <Button
-                    variant="outline"
-                    onClick={() => setSkillDialogOpen(false)}
-                  >
-                    Cancel
-                  </Button>
-                  <Button onClick={handleSkillSubmit}>
-                    {skillForm.id ? "Update" : "Add"}
-                  </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
-          </div>
-          <CardDescription>
-            Technical and soft skills that you possess
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {applicant.skills.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              <p>
-                No skills added yet. Add skills to help match you with relevant
-                job opportunities.
-              </p>
-            </div>
-          ) : (
-            <div className="flex flex-wrap gap-2">
-              {applicant.skills.map((skill) => (
-                <div
-                  key={skill.id}
-                  className="bg-secondary/10 rounded-full px-3 py-1.5 flex items-center"
-                >
-                  <span className="mr-2">{skill.name}</span>
-                  <Badge variant="secondary">{skill.level}</Badge>
-                  <div className="flex ml-2">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-5 w-5 p-0"
-                      onClick={() => editSkill(skill)}
-                    >
-                      <Pencil className="h-3 w-3" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-5 w-5 p-0 text-destructive"
-                      onClick={() => deleteSkill(skill.id)}
-                    >
-                      <Trash2 className="h-3 w-3" />
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      <Skill />
 
       {/* Experience */}
       <Card className="mb-8">
@@ -738,6 +587,7 @@ const ApplicantProfile = () => {
           ) : (
             <div className="flex flex-wrap gap-2">
               {applicant.languages.map((lang) => (
+                
                 <div
                   key={lang.id}
                   className="bg-primary/10 rounded-full px-3 py-1.5 flex items-center"
@@ -763,6 +613,8 @@ const ApplicantProfile = () => {
                     </Button>
                   </div>
                 </div>
+
+                
               ))}
             </div>
           )}

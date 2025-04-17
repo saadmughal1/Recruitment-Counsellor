@@ -39,7 +39,7 @@ const Dashboard = () => {
   const activeConnections = [].length;
 
   const renderApplicantDashboard = () => {
-    const matchingJobs = []
+    const matchingJobs = [];
 
     return (
       <>
@@ -62,42 +62,26 @@ const Dashboard = () => {
                   </div>
                   <div className="flex justify-between">
                     <span>Education</span>
-                    <Badge
-                      variant={
-                        applicant.education.length > 0 ? "default" : "outline"
-                      }
-                    >
-                      {applicant.education.length > 0 ? "Added" : "Missing"}
+                    <Badge variant={0 > 0 ? "default" : "outline"}>
+                      {1 > 0 ? "Added" : "Missing"}
                     </Badge>
                   </div>
                   <div className="flex justify-between">
                     <span>Skills</span>
-                    <Badge
-                      variant={
-                        applicant.skills.length > 0 ? "default" : "outline"
-                      }
-                    >
-                      {applicant.skills.length > 0 ? "Added" : "Missing"}
+                    <Badge variant={1 > 0 ? "default" : "outline"}>
+                      {1 > 0 ? "Added" : "Missing"}
                     </Badge>
                   </div>
                   <div className="flex justify-between">
                     <span>Experience</span>
-                    <Badge
-                      variant={
-                        applicant.experience.length > 0 ? "default" : "outline"
-                      }
-                    >
-                      {applicant.experience.length > 0 ? "Added" : "Missing"}
+                    <Badge variant={1 > 0 ? "default" : "outline"}>
+                      {1 > 0 ? "Added" : "Missing"}
                     </Badge>
                   </div>
                   <div className="flex justify-between">
                     <span>Languages</span>
-                    <Badge
-                      variant={
-                        applicant.languages.length > 0 ? "default" : "outline"
-                      }
-                    >
-                      {applicant.languages.length > 0 ? "Added" : "Missing"}
+                    <Badge variant={1 > 0 ? "default" : "outline"}>
+                      {1 > 0 ? "Added" : "Missing"}
                     </Badge>
                   </div>
                 </div>

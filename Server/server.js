@@ -9,6 +9,7 @@ const path = require("path");
 
 const userRoutes = require("./routes/userRoutes");
 const educationRoutes = require("./routes/educationRoutes");
+const skillRoutes = require("./routes/skillRoutes");
 
 connectDB();
 
@@ -27,6 +28,7 @@ app.get("/", (req, res) => {
 
 app.use("/api/user", userRoutes);
 app.use("/api/education", educationRoutes);
+app.use("/api/skill", skillRoutes);
 
 app.listen(PORT, () => {
   console.log("Server is running on port " + PORT);

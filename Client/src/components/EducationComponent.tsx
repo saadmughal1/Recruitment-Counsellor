@@ -26,9 +26,6 @@ import axios from "axios";
 import { Education } from "@/types"; // Adjust path if needed
 
 function EducationComponent() {
-  const tok = localStorage.getItem("user");
-  const token = JSON.parse(tok)?.token;
-
   const { toast } = useToast();
   const [educationDialogOpen, setEducationDialogOpen] = useState(false);
   const [getEducation, setEducation] = useState<Education[]>([]);
@@ -67,6 +64,9 @@ function EducationComponent() {
   };
 
   const handleEducationSubmit = async () => {
+    const tok = localStorage.getItem("user");
+    const token = JSON.parse(tok)?.token;
+
     const { institution, degree, fieldOfStudy, startDate, endDate } =
       educationForm;
 
@@ -139,6 +139,9 @@ function EducationComponent() {
   };
 
   const deleteEducation = async (id: string) => {
+    const tok = localStorage.getItem("user");
+    const token = JSON.parse(tok)?.token;
+
     try {
       const confirmed = window.confirm(
         "Are you sure you want to delete this education?"
@@ -168,6 +171,9 @@ function EducationComponent() {
   };
 
   const loadEducation = async () => {
+    const tok = localStorage.getItem("user");
+    const token = JSON.parse(tok)?.token;
+
     try {
       const education = await axios.get(
         "http://localhost:4000/api/education/",
@@ -175,6 +181,8 @@ function EducationComponent() {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
+
+      // console.log(education)
       setEducation(education?.data?.data || []);
     } catch (error) {
       console.error("education fetch error: ", error);
@@ -316,9 +324,7 @@ function EducationComponent() {
                 >
                   <div className="flex justify-between items-start">
                     <div>
-                      <h3 className="font-medium text-lg">
-                        {edu.institution}
-                      </h3>
+                      <h3 className="font-medium text-lg">{edu.institution}</h3>
                       <p>
                         {edu.degree} in {edu.fieldOfStudy}
                       </p>
