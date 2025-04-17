@@ -35,7 +35,7 @@ export interface Skill {
 }
 
 export interface Experience {
-  id: string;
+  _id: string;
   company: string;
   position: string;
   location: string;
