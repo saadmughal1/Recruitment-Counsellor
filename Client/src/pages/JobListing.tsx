@@ -84,7 +84,7 @@ const JobListing = () => {
     );
   }
 
-  console.log(jobsToShow)
+  console.log(jobsToShow);
 
   return (
     <MainLayout>

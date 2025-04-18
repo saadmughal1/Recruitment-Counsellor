@@ -171,39 +171,7 @@ const RecruiterProfile = () => {
         </CardContent>
       </Card>
 
-      {/* Analytics Card - Placeholder for potential future feature */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Recruitment Analytics</CardTitle>
-          <CardDescription>
-            Overview of your recruiting activity
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="bg-secondary/10 p-4 rounded-lg text-center">
-              <div className="text-3xl font-bold mb-1">{"-"}</div>
-              <p className="text-sm text-muted-foreground">Active Job Posts</p>
-            </div>
-            <div className="bg-secondary/10 p-4 rounded-lg text-center">
-              <div className="text-3xl font-bold mb-1">{"-"}</div>
-              <p className="text-sm text-muted-foreground">
-                Connection Requests
-              </p>
-            </div>
-            <div className="bg-secondary/10 p-4 rounded-lg text-center">
-              <div className="text-3xl font-bold mb-1">{"-"}</div>
-              <p className="text-sm text-muted-foreground">Applicant Matches</p>
-            </div>
-          </div>
-          <div className="mt-6 text-center">
-            <p className="text-muted-foreground text-sm">
-              Complete your company profile to improve applicant matching and
-              visibility.
-            </p>
-          </div>
-        </CardContent>
-      </Card>
+    
     </MainLayout>
   );
 };

@@ -6,13 +6,16 @@ const {
   updateJob,
   getMyPostedJobs,
   getSingleJob,
+  matchedApplicants,
 } = require("../controllers/jobController");
 
 router.get("/getMyPostedJobs", getMyPostedJobs);
-router.get("/getSingleJob/:id",getSingleJob);
+router.get("/getSingleJob/:id", getSingleJob);
 
 router.post("/add", addJob);
 router.put("/update/:id", updateJob);
 router.delete("/delete/:id", deleteJob);
+
+router.get("/matchedApplicants/:id", matchedApplicants);
 
 module.exports = router;

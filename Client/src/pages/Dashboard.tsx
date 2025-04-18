@@ -282,7 +282,6 @@ const Dashboard = () => {
   };
 
   const renderRecruiterDashboard = () => {
-
     return (
       <>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
@@ -354,7 +353,7 @@ const Dashboard = () => {
               ) : (
                 <div className="space-y-4">
                   {jobsToShow.slice(0, 3).map((job) => (
-                  <Link key={job._id} to={`/jobs/${job._id}`}>
+                    <Link key={job._id} to={`/jobs/${job._id}`}>
                       <div className="border rounded-lg p-4 hover:border-primary transition-colors cursor-pointer">
                         <div className="flex justify-between items-start">
                           <div>
@@ -384,7 +383,6 @@ const Dashboard = () => {
                         </div>
                       </div>
                     </Link>
-
                   ))}
                   {jobsToShow.length > 3 && (
                     <div className="text-center pt-2">
@@ -395,9 +393,6 @@ const Dashboard = () => {
                       </Button>
                     </div>
                   )}
-
-
-
                 </div>
               )}
             </CardContent>

@@ -50,15 +50,7 @@ import axios from "axios";
 const JobDetail = () => {
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
-  const {
-    jobPosts,
-    getJobPostById,
-    updateJobPost,
-    deleteJobPost,
-    getMatchingApplicants,
-    connections,
-    createConnection,
-  } = useData();
+  const { connections, createConnection } = useData();
 
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -91,7 +83,9 @@ const JobDetail = () => {
   });
 
   const [confirmDelete, setConfirmDelete] = useState(false);
+
   const [matchingApplicants, setMatchingApplicants] = useState<any[]>([]);
+
   const [connectionStatus, setConnectionStatus] = useState<
     "none" | "pending" | "accepted" | "rejected"
   >("none");
@@ -99,6 +93,7 @@ const JobDetail = () => {
   // Initialize job data
   useEffect(() => {
     loadJob();
+    loadMatchingApplicants();
   }, []);
 
   const loadJob = async () => {
@@ -117,6 +112,23 @@ const JobDetail = () => {
       });
 
       setJob(getJob.data?.data || []);
+    } catch (error) {
+      console.error("Job loading error", error);
+      toast({
+        title: "Error",
+        description: "Something went wrong. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const loadMatchingApplicants = async () => {
+    try {
+      const getMatchedApplicants = await axios.get(
+        `http://www.localhost:4000/api/job/matchedApplicants/${id}`
+      );
+      // console.log(getMatchedApplicants.data?.data);
+      setMatchingApplicants(getMatchedApplicants.data?.data || []);
     } catch (error) {
       console.error("Job loading error", error);
       toast({
@@ -162,8 +174,6 @@ const JobDetail = () => {
       return;
     }
 
-    // console.log(editForm);
-
     const skills =
       typeof editForm.skillsRequired === "string"
         ? editForm.skillsRequired
@@ -171,13 +181,6 @@ const JobDetail = () => {
             .map((skill) => skill.trim())
             .filter((skill) => skill.length > 0)
         : editForm.skillsRequired;
-
-    // console.log(skills);
-
-    // setEditForm({
-    //   ...editForm,
-    //   skillsRequired: skills,
-    // });
 
     await axios.put(`http://localhost:4000/api/job/update/${id}`, {
       title: editForm.title,
@@ -255,14 +258,14 @@ const JobDetail = () => {
   }
 
   // Check if a connection request has already been sent to this applicant
-  const hasConnectionRequest = (applicantId: string) => {
-    return connections.some(
-      (conn) =>
-        conn.applicantId === applicantId &&
-        conn.recruiterId === user?.id &&
-        conn.jobPostId === id
-    );
-  };
+  // const hasConnectionRequest = (applicantId: string) => {
+  //   return connections.some(
+  //     (conn) =>
+  //       conn.applicantId === applicantId &&
+  //       conn.recruiterId === user?.id &&
+  //       conn.jobPostId === id
+  //   );
+  // };
 
   if (!job) {
     return (
@@ -278,6 +281,15 @@ const JobDetail = () => {
         </div>
       </MainLayout>
     );
+  }
+
+  function formatDate(isoDate: string): string {
+    const date = new Date(isoDate);
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
   }
 
   return (
@@ -539,7 +551,7 @@ const JobDetail = () => {
           </CardContent>
 
           {/* Tabs for recruiters to view matching applicants */}
-          {user?.userType === "recruiter" && job.recruiterId === user.id && (
+          {user?.userType === "recruiter" && (
             <CardFooter className="flex-col border-t pt-6">
               <Tabs defaultValue="matching" className="w-full">
                 <TabsList className="grid w-full grid-cols-2">
@@ -566,21 +578,21 @@ const JobDetail = () => {
                   ) : (
                     <div className="space-y-4">
                       {matchingApplicants.map((applicant) => {
-                        const hasRequested = hasConnectionRequest(applicant.id);
+                        // const hasRequested = hasConnectionRequest(applicant.id);
 
                         return (
-                          <Card key={applicant.id}>
-                            <CardContent className="p-4 flex justify-between items-center">
+                          <Card key={applicant._id}>
+                            <CardContent className="p-4 space-y-3">
                               <div className="flex items-center space-x-3">
                                 <Avatar>
                                   {applicant.profilePhoto ? (
                                     <AvatarImage
-                                      src={applicant.profilePhoto}
-                                      alt={applicant.fullName}
+                                      src={`http://localhost:4000/uploads/${applicant.profilePhoto}`}
+                                      alt={applicant.fullname}
                                     />
                                   ) : (
                                     <AvatarFallback>
-                                      {applicant.fullName
+                                      {applicant.fullname
                                         .split(" ")
                                         .map((n: string) => n[0])
                                         .join("")
@@ -590,44 +602,84 @@ const JobDetail = () => {
                                   )}
                                 </Avatar>
                                 <div>
-                                  <h4 className="font-medium">
-                                    {applicant.fullName}
+                                  <h4 className="font-medium text-lg">
+                                    {applicant.fullname}
                                   </h4>
-                                  <div className="flex flex-wrap gap-1 mt-1">
-                                    {applicant.skills
-                                      .slice(0, 3)
-                                      .map((skill: any) => (
-                                        <Badge
-                                          key={skill.id}
-                                          variant="outline"
-                                          className="text-xs"
-                                        >
-                                          {skill.name}
-                                        </Badge>
-                                      ))}
-                                    {applicant.skills.length > 3 && (
-                                      <Badge
-                                        variant="outline"
-                                        className="text-xs"
-                                      >
-                                        +{applicant.skills.length - 3}
-                                      </Badge>
-                                    )}
-                                  </div>
+                                  <p className="text-sm text-muted-foreground">
+                                    {applicant.email}
+                                  </p>
                                 </div>
                               </div>
 
-                              <Button
-                                onClick={() =>
-                                  handleConnectWithApplicant(applicant.id)
-                                }
-                                disabled={hasRequested}
-                                variant={hasRequested ? "outline" : "default"}
-                              >
-                                {hasRequested
-                                  ? "Connection Requested"
-                                  : "Connect"}
-                              </Button>
+                              <div>
+                                <h5 className="font-semibold">User Skills</h5>
+                                <div className="flex flex-wrap gap-2 mt-1">
+                                  {applicant.userSkills.map(
+                                    (skill: any, index: number) => (
+                                      <Badge
+                                        key={`user-${skill}-${index}`}
+                                        variant="secondary"
+                                      >
+                                        {skill}
+                                      </Badge>
+                                    )
+                                  )}
+                                </div>
+                              </div>
+
+                              <div>
+                                <h5 className="font-semibold">
+                                  Matched Skills
+                                </h5>
+                                <div className="flex flex-wrap gap-2 mt-1">
+                                  {applicant.matchedSkills.map(
+                                    (skill: any, index: number) => (
+                                      <Badge
+                                        key={`matched-${skill}-${index}`}
+                                        variant="default"
+                                      >
+                                        {skill}
+                                      </Badge>
+                                    )
+                                  )}
+                                </div>
+                              </div>
+
+                              <div className="text-sm mt-2">
+                                <p>
+                                  <strong>Total Experience:</strong>{" "}
+                                  {applicant.totalExperienceYears} years
+                                </p>
+                              </div>
+
+                              <div>
+                                <h5 className="font-semibold mt-2">
+                                  Experiences
+                                </h5>
+                                <ul className="list-disc list-inside text-sm text-muted-foreground">
+                                  {applicant.experiences.map(
+                                    (exp: any, index: number) => (
+                                      <li key={`exp-${index}`}>
+                                        {exp.company} |{" "}
+                                        {formatDate(exp.startDate)} -
+                                        {exp.endDate
+                                          ? " " + formatDate(exp.endDate)
+                                          : " Present"}
+                                      </li>
+                                    )
+                                  )}
+                                </ul>
+                              </div>
+
+                              <div className="flex justify-end pt-2">
+                                <Button
+                                  onClick={() =>
+                                    handleConnectWithApplicant(applicant._id)
+                                  }
+                                >
+                                  Request
+                                </Button>
+                              </div>
                             </CardContent>
                           </Card>
                         );
@@ -636,6 +688,7 @@ const JobDetail = () => {
                   )}
                 </TabsContent>
 
+                {/* connections tab */}
                 <TabsContent value="connected" className="pt-4">
                   {connections.filter(
                     (conn) =>
@@ -676,11 +729,11 @@ const JobDetail = () => {
                                     {applicant.profilePhoto ? (
                                       <AvatarImage
                                         src={applicant.profilePhoto}
-                                        alt={applicant.fullName}
+                                        alt={applicant.fullname}
                                       />
                                     ) : (
                                       <AvatarFallback>
-                                        {applicant.fullName
+                                        {applicant.fullname
                                           .split(" ")
                                           .map((n: string) => n[0])
                                           .join("")
@@ -691,7 +744,7 @@ const JobDetail = () => {
                                   </Avatar>
                                   <div>
                                     <h4 className="font-medium">
-                                      {applicant.fullName}
+                                      {applicant.fullname}
                                     </h4>
                                     <div className="flex flex-wrap gap-1 mt-1">
                                       {applicant.skills

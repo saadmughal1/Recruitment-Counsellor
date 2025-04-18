@@ -34,8 +34,6 @@ app.use("/api/skill", skillRoutes);
 app.use("/api/experience", experienceRoutes);
 app.use("/api/job", jobRoutes);
 
-
-
 app.listen(PORT, () => {
   console.log("Server is running on port " + PORT);
 });

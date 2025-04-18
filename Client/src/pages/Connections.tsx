@@ -186,6 +186,9 @@ const Connections = () => {
               {filteredActiveConnections.map((connection) => {
                 const details = getConnectionDetails(connection);
                 
+
+
+                
                 return (
                   <Card key={connection.id} className="h-full">
                     <CardContent className="p-6 flex flex-col h-full">
