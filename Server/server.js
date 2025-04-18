@@ -10,12 +10,12 @@ const path = require("path");
 const userRoutes = require("./routes/userRoutes");
 const educationRoutes = require("./routes/educationRoutes");
 const skillRoutes = require("./routes/skillRoutes");
-const experienceRouted = require("./routes/experienceRoutes");
+const experienceRoutes = require("./routes/experienceRoutes");
+const jobRoutes = require("./routes/jobRoutes");
 
 connectDB();
 
 app.use(cors());
-
 
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
@@ -31,7 +31,10 @@ app.get("/", (req, res) => {
 app.use("/api/user", userRoutes);
 app.use("/api/education", educationRoutes);
 app.use("/api/skill", skillRoutes);
-app.use("/api/experience", experienceRouted);
+app.use("/api/experience", experienceRoutes);
+app.use("/api/job", jobRoutes);
+
+
 
 app.listen(PORT, () => {
   console.log("Server is running on port " + PORT);

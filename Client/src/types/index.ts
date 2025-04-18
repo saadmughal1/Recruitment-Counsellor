@@ -63,7 +63,7 @@ export interface Recruiter {
 }
 
 export interface JobPost {
-  id: string;
+  _id: string;
   recruiterId: string;
   companyName: string;
   title: string;
@@ -71,8 +71,8 @@ export interface JobPost {
   location: string;
   skillsRequired: string[];
   experienceRequired: number;
-  postedDate: string;
-  isActive: boolean;
+  createdAt: string;
+  isActive: Boolean;
 }
 
 export interface Connection {
