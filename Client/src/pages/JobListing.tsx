@@ -84,6 +84,8 @@ const JobListing = () => {
     );
   }
 
+  console.log(jobsToShow)
+
   return (
     <MainLayout>
       {jobsToShow.length == 0 ? (

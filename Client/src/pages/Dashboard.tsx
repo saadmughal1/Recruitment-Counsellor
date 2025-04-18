@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 
+import { JobPost } from "@/types";
 import { useEffect } from "react";
 import axios from "axios";
 
@@ -21,9 +22,12 @@ const Dashboard = () => {
   const { user } = useAuth();
   const { applicant, recruiter } = useData();
 
+  const [jobsToShow, setJobsToShow] = useState<JobPost[]>([]);
   const [isEducation, setEducation] = useState(false);
   const [isSkill, setSkill] = useState(false);
   const [isExperience, setExperience] = useState(false);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
   const unreadNotifications = [].length;
 
@@ -33,6 +37,7 @@ const Dashboard = () => {
     loadEducation();
     loadExperiences();
     loadSkills();
+    fetchJobs();
   }, []);
 
   const loadEducation = async () => {
@@ -83,6 +88,29 @@ const Dashboard = () => {
       }
     } catch (error) {
       console.log(error);
+    }
+  };
+
+  const fetchJobs = async () => {
+    try {
+      const tok = localStorage.getItem("user");
+      const token = JSON.parse(tok || "{}")?.token;
+
+      const response = await axios.get(
+        "http://localhost:4000/api/job/getMyPostedJobs",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      setJobsToShow(response.data?.data || []);
+    } catch (err) {
+      console.error("Failed to fetch jobs:", err);
+      setError("Unable to fetch jobs. Please try again later.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -254,7 +282,6 @@ const Dashboard = () => {
   };
 
   const renderRecruiterDashboard = () => {
-    const postedJobs = [];
 
     return (
       <>
@@ -267,7 +294,7 @@ const Dashboard = () => {
             <CardContent>
               <div className="space-y-2">
                 <div className="font-semibold text-2xl">
-                  {postedJobs.length}
+                  {jobsToShow.length}
                 </div>
                 <p className="text-muted-foreground">active job posts</p>
               </div>
@@ -315,7 +342,7 @@ const Dashboard = () => {
               </Button>
             </CardHeader>
             <CardContent>
-              {postedJobs.length === 0 ? (
+              {jobsToShow.length === 0 ? (
                 <div className="text-center py-8">
                   <p className="text-muted-foreground mb-4">
                     You haven't posted any jobs yet.
@@ -326,15 +353,15 @@ const Dashboard = () => {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {postedJobs.slice(0, 3).map((job) => (
-                    <Link key={job.id} to={`/jobs/${job.id}`}>
+                  {jobsToShow.slice(0, 3).map((job) => (
+                  <Link key={job._id} to={`/jobs/${job._id}`}>
                       <div className="border rounded-lg p-4 hover:border-primary transition-colors cursor-pointer">
                         <div className="flex justify-between items-start">
                           <div>
                             <h3 className="font-medium text-lg">{job.title}</h3>
                             <p className="text-muted-foreground">
                               {job.isActive ? "Active" : "Inactive"} • Posted{" "}
-                              {new Date(job.postedDate).toLocaleDateString()}
+                              {new Date(job.createdAt).toLocaleDateString()}
                             </p>
                           </div>
                           <div>
@@ -357,16 +384,20 @@ const Dashboard = () => {
                         </div>
                       </div>
                     </Link>
+
                   ))}
-                  {postedJobs.length > 3 && (
+                  {jobsToShow.length > 3 && (
                     <div className="text-center pt-2">
                       <Button variant="outline" asChild>
                         <Link to="/jobs">
-                          View All {postedJobs.length} Jobs
+                          View All {jobsToShow.length} Jobs
                         </Link>
                       </Button>
                     </div>
                   )}
+
+
+
                 </div>
               )}
             </CardContent>
