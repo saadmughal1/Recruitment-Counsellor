@@ -16,7 +16,7 @@ import JobListing from "@/pages/JobListing";
 import JobDetail from "@/pages/JobDetail";
 import JobForm from "@/pages/JobForm";
 import Connections from "@/pages/Connections";
-import ConnectionChat from "@/pages/ConnectionChat";
+import Chat from "@/pages/Chat";
 import Notifications from "@/pages/Notifications";
 
 import EducationComponent from "./components/EducationComponent";
@@ -114,6 +114,19 @@ const App = () => (
                   </ProtectedRoute>
                 }
               />
+             
+             
+             <Route
+                path="/start-chat/:id"
+                element={
+                  <ProtectedRoute>
+                    <Chat />
+                  </ProtectedRoute>
+                }
+              />
+
+             
+             
               <Route
                 path="/connections"
                 element={
@@ -122,14 +135,14 @@ const App = () => (
                   </ProtectedRoute>
                 }
               />
-              <Route
+              {/* <Route
                 path="/connections/:id"
                 element={
                   <ProtectedRoute>
                     <ConnectionChat />
                   </ProtectedRoute>
                 }
-              />
+              /> */}
               <Route
                 path="/notifications"
                 element={
@@ -138,6 +151,8 @@ const App = () => (
                   </ProtectedRoute>
                 }
               />
+
+
 
               {/* Update the index route to redirect to landing page */}
               <Route

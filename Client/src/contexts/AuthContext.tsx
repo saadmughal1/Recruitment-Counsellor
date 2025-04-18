@@ -51,6 +51,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         profilePhoto: response.data?.profilePhoto,
         companyName: response.data?.companyName,
         companyDescription: response.data?.companyDescription,
+        id: response.data?.id,
       };
 
       setUser(newUser);

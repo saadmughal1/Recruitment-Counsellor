@@ -588,7 +588,15 @@ const JobDetail = () => {
                                 >
                                   View Profile
                                 </Button>
-                                <Button>Message</Button>
+                                <Button
+                                  onClick={() => {
+                                    navigate(
+                                      `/start-chat/${applicant._id}`
+                                    );
+                                  }}
+                                >
+                                  Message
+                                </Button>
                               </div>
                             </CardContent>
                           </Card>

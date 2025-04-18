@@ -86,6 +86,7 @@ const login = async (req, res) => {
       profilePhoto: user.profilePhoto || null,
       companyName: user.companyName || null,
       companyDescription: user.companyDescription || null,
+      id: user._id,
     });
   } catch (err) {
     console.error(err);

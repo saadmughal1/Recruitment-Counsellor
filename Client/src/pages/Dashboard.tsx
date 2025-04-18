@@ -231,6 +231,15 @@ const Dashboard = () => {
                           </Link>
                         </Button>
 
+                        <Button>
+                          <Link
+                            to={`/start-chat/${job.recruiter}`}
+                            className="text-white"
+                          >
+                            Message
+                          </Link>
+                        </Button>
+
                         <Button asChild>
                           <Link
                             to={`/company-profile/${job.recruiter}`}
