@@ -21,7 +21,7 @@ import Notifications from "@/pages/Notifications";
 
 import EducationComponent from "./components/EducationComponent";
 
-
+import ViewApplicantProfile from "./pages/ViewApplicantProfile";
 
 const queryClient = new QueryClient();
 
@@ -67,6 +67,15 @@ const App = () => (
                 element={
                   <ProtectedRoute>
                     <Profile />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/applicant-profile/:id"
+                element={
+                  <ProtectedRoute>
+                    <ViewApplicantProfile />
                   </ProtectedRoute>
                 }
               />

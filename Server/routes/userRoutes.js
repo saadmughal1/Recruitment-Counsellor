@@ -2,8 +2,8 @@ const express = require("express");
 const router = express.Router();
 const multer = require("multer");
 const path = require("path");
-const fs = require("fs")
-const { register, login, update } = require("../controllers/userController");
+const fs = require("fs");
+const { register, login, applicantProfile } = require("../controllers/userController");
 
 const uploadPath = path.join(__dirname, "../uploads");
 if (!fs.existsSync(uploadPath)) {
@@ -29,8 +29,7 @@ const upload = multer({ storage });
 
 router.post("/register", upload.single("profilePhoto"), register);
 
-
-
+router.get("/profile-applicant/:id", applicantProfile);
 
 router.post("/login", login);
 

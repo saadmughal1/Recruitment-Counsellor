@@ -27,10 +27,10 @@ import { Skill } from "@/types";
 function SkillComponent() {
   const { toast } = useToast();
   const [skills, setSkills] = useState<Skill[]>([]);
+  const [loading, setLoading] = useState(true); // NEW
   const [skillForm, setSkillForm] = useState({ name: "" });
   const [editingSkillId, setEditingSkillId] = useState<string | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [loading, setLoading] = useState(true); // NEW
 
   const resetForm = () => {
     setSkillForm({ name: "" });

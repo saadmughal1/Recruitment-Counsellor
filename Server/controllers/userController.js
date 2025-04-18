@@ -1,4 +1,7 @@
 const User = require("../models/userModel");
+const Education = require("../models/educationModel");
+const Experience = require("../models/experienceModel");
+const Skill = require("../models/skillModel");
 
 const bcrypt = require("bcrypt");
 const mongoose = require("mongoose");
@@ -94,7 +97,33 @@ const login = async (req, res) => {
   }
 };
 
+const applicantProfile = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const education = await Education.find({ user: id });
+    const skill = await Skill.find({ user: id });
+    const experience = await Experience.find({ user: id });
+    const user = await User.findById({ _id: id });
+
+    return res.status(200).json({
+      status: 200,
+      education: education || [],
+      skill: skill || [],
+      experience: experience || [],
+      user: user || [],
+    });
+  } catch (err) {
+    console.error(err);
+
+    return res.status(500).json({
+      message: "Server error, please try again later",
+      error: err.message || "Unknown error",
+    });
+  }
+};
+
 module.exports = {
   register,
   login,
+  applicantProfile,
 };
