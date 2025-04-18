@@ -10,6 +10,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+
+import { useToast } from "@/components/ui/use-toast";
+
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
@@ -19,6 +22,7 @@ import { useEffect } from "react";
 import axios from "axios";
 
 const Dashboard = () => {
+  const { toast } = useToast();
   const { user } = useAuth();
   const { applicant, recruiter } = useData();
 
@@ -29,6 +33,8 @@ const Dashboard = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
+  const [matchingJobs, setMatchingJobs] = useState<any[]>([]);
+
   const unreadNotifications = [].length;
 
   const activeConnections = [].length;
@@ -38,6 +44,8 @@ const Dashboard = () => {
     loadExperiences();
     loadSkills();
     fetchJobs();
+
+    loadMatchingJobs();
   }, []);
 
   const loadEducation = async () => {
@@ -115,8 +123,6 @@ const Dashboard = () => {
   };
 
   const renderApplicantDashboard = () => {
-    const matchingJobs = [];
-
     return (
       <>
         <div className="mb-8">
@@ -126,7 +132,7 @@ const Dashboard = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="mb-8">
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-lg">Profile Completion</CardTitle>
@@ -163,50 +169,6 @@ const Dashboard = () => {
                   </div>
                 </div>
               )}
-              <Button className="w-full mt-4" asChild>
-                <Link to="/profile">Update Profile</Link>
-              </Button>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg">Matching Jobs</CardTitle>
-              <CardDescription>Jobs that match your skills</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                <div className="font-semibold text-2xl">
-                  {matchingJobs.length}
-                </div>
-                <p className="text-muted-foreground">
-                  matching job opportunities
-                </p>
-              </div>
-              <Button className="w-full mt-4" asChild>
-                <Link to="/jobs">View Jobs</Link>
-              </Button>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg">Connections</CardTitle>
-              <CardDescription>Network with recruiters</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                <div className="font-semibold text-2xl">
-                  {activeConnections}
-                </div>
-                <p className="text-muted-foreground">active connections</p>
-                <div className="font-semibold text-md mt-2">
-                  {unreadNotifications} unread notifications
-                </div>
-              </div>
-              <Button className="w-full mt-4" asChild>
-                <Link to="/connections">Manage Connections</Link>
-              </Button>
             </CardContent>
           </Card>
         </div>
@@ -233,36 +195,54 @@ const Dashboard = () => {
               ) : (
                 <div className="space-y-4">
                   {matchingJobs.slice(0, 3).map((job) => (
-                    <Link key={job.id} to={`/jobs/${job.id}`}>
-                      <div className="border rounded-lg p-4 hover:border-primary transition-colors cursor-pointer">
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <h3 className="font-medium text-lg">{job.title}</h3>
-                            <p className="text-muted-foreground">
-                              {job.companyName}
-                            </p>
-                          </div>
-                          <div>
-                            <Badge>{`${job.experienceRequired}+ years`}</Badge>
-                          </div>
+                    <div
+                      key={job._id}
+                      className="border rounded-lg p-4 hover:border-primary transition-colors cursor-pointer"
+                    >
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <h3 className="font-medium text-lg">{job.title}</h3>
+                          <p className="text-muted-foreground">
+                            {job.companyName}
+                          </p>
                         </div>
-                        <div className="mt-2 flex flex-wrap gap-1">
-                          {job.skillsRequired
-                            .slice(0, 3)
-                            .map((skill, index) => (
-                              <Badge key={index} variant="outline">
-                                {skill}
-                              </Badge>
-                            ))}
-                          {job.skillsRequired.length > 3 && (
-                            <Badge variant="outline">
-                              +{job.skillsRequired.length - 3}
-                            </Badge>
-                          )}
+                        <div>
+                          <Badge>{`${job.experienceRequired}+ years`}</Badge>
                         </div>
                       </div>
-                    </Link>
+                      <div className="mt-2 flex flex-wrap gap-1">
+                        {job.skillsRequired.slice(0, 3).map((skill, index) => (
+                          <Badge key={index} variant="outline">
+                            {skill}
+                          </Badge>
+                        ))}
+                        {job.skillsRequired.length > 3 && (
+                          <Badge variant="outline">
+                            +{job.skillsRequired.length - 3}
+                          </Badge>
+                        )}
+                      </div>
+
+                      {/* Details button to view job */}
+                      <div className="mt-4 flex justify-end gap-4">
+                        <Button asChild>
+                          <Link to={`/jobs/${job._id}`} className="text-white">
+                            Details
+                          </Link>
+                        </Button>
+
+                        <Button asChild>
+                          <Link
+                            to={`/company-profile/${job.recruiter}`}
+                            className="text-white"
+                          >
+                            Company Profile
+                          </Link>
+                        </Button>
+                      </div>
+                    </div>
                   ))}
+
                   {matchingJobs.length > 3 && (
                     <div className="text-center pt-2">
                       <Button variant="outline" asChild>
@@ -284,49 +264,6 @@ const Dashboard = () => {
   const renderRecruiterDashboard = () => {
     return (
       <>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg">Job Posts</CardTitle>
-              <CardDescription>Manage your job listings</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                <div className="font-semibold text-2xl">
-                  {jobsToShow.length}
-                </div>
-                <p className="text-muted-foreground">active job posts</p>
-              </div>
-              <div className="grid grid-cols-2 gap-2 mt-4">
-                <Button asChild>
-                  <Link to="/jobs/new">Post Job</Link>
-                </Button>
-                <Button variant="outline" asChild>
-                  <Link to="/jobs">View All Jobs</Link>
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg">Connections</CardTitle>
-              <CardDescription>Network with applicants</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                <div className="font-semibold text-2xl">
-                  {activeConnections}
-                </div>
-                <p className="text-muted-foreground">active connections</p>
-              </div>
-              <Button className="w-full mt-4" asChild>
-                <Link to="/connections">Manage Connections</Link>
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-
         <div className="grid grid-cols-1 gap-6">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -401,6 +338,35 @@ const Dashboard = () => {
       </>
     );
   };
+
+  const loadMatchingJobs = async () => {
+    const tok = localStorage.getItem("user");
+    const token = JSON.parse(tok || "{}")?.token;
+
+    try {
+      const getMatchingJobs = await axios.get(
+        `http://www.localhost:4000/api/job/matchedJobs`,
+
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      // console.log(getMatchingJobs.data?.data);
+      setMatchingJobs(getMatchingJobs.data?.data || []);
+    } catch (error) {
+      console.error("Job loading error", error);
+      toast({
+        title: "Error",
+        description: "Something went wrong. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // console.log(matchingJobs);
 
   return (
     <MainLayout>

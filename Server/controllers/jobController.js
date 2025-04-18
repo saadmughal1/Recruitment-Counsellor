@@ -4,6 +4,9 @@ const Experience = require("../models/experienceModel");
 const User = require("../models/userModel");
 const jwt = require("jsonwebtoken");
 
+
+const mongoose = require("mongoose")
+
 // Add Job
 const addJob = async (req, res) => {
   const authHeader = req.headers.authorization;
@@ -291,6 +294,82 @@ const matchedApplicants = async (req, res) => {
   }
 };
 
+// get job matched applicants
+const getMatchedJobs = async (req, res) => {
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+
+  const token = authHeader.split(" ")[1];
+
+  const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+  const userId = decoded.id;
+
+  try {
+    // Step 1: Fetch the user's skills
+    const userSkills = await Skill.find({ user: userId }).lean();
+    const skillNames = userSkills.map(s => s.name.toLowerCase()); // Convert skills to lowercase for case-insensitive match
+
+    // Step 2: Use aggregation to find matched jobs
+    const matchedJobs = await Job.aggregate([
+      // Step 3: Add matchedSkills array to each job
+      {
+        $addFields: {
+          matchedSkills: {
+            $setIntersection: [
+              skillNames, // Skills of the user
+              {
+                $map: {
+                  input: "$skillsRequired", // Job's required skills
+                  as: "skill",
+                  in: { $toLower: "$$skill" } // Convert job skills to lowercase
+                }
+              }
+            ]
+          }
+        }
+      },
+      // Step 4: Match only jobs that have at least one skill in common
+      {
+        $match: {
+          $expr: {
+            $gt: [{ $size: "$matchedSkills" }, 0] // Only jobs with at least one matching skill
+          }
+        }
+      },
+      // Step 5: Project the necessary fields, including recruiter (user) ID
+      {
+        $project: {
+          title: 1,
+          description: 1,
+          experienceRequired: 1,
+          skillsRequired: 1,
+          matchedSkills: 1,
+          recruiter: "$user", // Directly returning the recruiter ID from the 'user' field
+        }
+      }
+    ]);
+
+    // Step 6: Send back the response with matched jobs
+    res.status(200).json({
+      success: true,
+      message: "Matched jobs fetched successfully",
+      data: matchedJobs
+    });
+
+  } catch (error) {
+    console.error("Error fetching matched jobs:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch matched jobs",
+      error: error.message
+    });
+  }
+};
+
 module.exports = {
   addJob,
   deleteJob,
@@ -298,4 +377,5 @@ module.exports = {
   getMyPostedJobs,
   getSingleJob,
   matchedApplicants,
+  getMatchedJobs,
 };

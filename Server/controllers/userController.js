@@ -122,8 +122,26 @@ const applicantProfile = async (req, res) => {
   }
 };
 
+const recruiterProfile = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const user = await User.findById({ _id: id });
+    return res.status(200).json({
+      user: user || [],
+    });
+  } catch (err) {
+    console.error(err);
+
+    return res.status(500).json({
+      message: "Server error, please try again later",
+      error: err.message || "Unknown error",
+    });
+  }
+};
+
 module.exports = {
   register,
   login,
   applicantProfile,
+  recruiterProfile,
 };

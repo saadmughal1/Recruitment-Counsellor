@@ -22,6 +22,7 @@ import Notifications from "@/pages/Notifications";
 import EducationComponent from "./components/EducationComponent";
 
 import ViewApplicantProfile from "./pages/ViewApplicantProfile";
+import ViewCompanyProfile from "./pages/ViewCompanyProfile";
 
 const queryClient = new QueryClient();
 
@@ -76,6 +77,15 @@ const App = () => (
                 element={
                   <ProtectedRoute>
                     <ViewApplicantProfile />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/company-profile/:id"
+                element={
+                  <ProtectedRoute>
+                    <ViewCompanyProfile />
                   </ProtectedRoute>
                 }
               />
