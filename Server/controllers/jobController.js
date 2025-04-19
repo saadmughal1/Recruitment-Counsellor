@@ -4,8 +4,7 @@ const Experience = require("../models/experienceModel");
 const User = require("../models/userModel");
 const jwt = require("jsonwebtoken");
 
-
-const mongoose = require("mongoose")
+const mongoose = require("mongoose");
 
 // Add Job
 const addJob = async (req, res) => {
@@ -294,7 +293,7 @@ const matchedApplicants = async (req, res) => {
   }
 };
 
-// get job matched applicants
+// get job matched jobs
 const getMatchedJobs = async (req, res) => {
   const authHeader = req.headers.authorization;
 
@@ -311,7 +310,7 @@ const getMatchedJobs = async (req, res) => {
   try {
     // Step 1: Fetch the user's skills
     const userSkills = await Skill.find({ user: userId }).lean();
-    const skillNames = userSkills.map(s => s.name.toLowerCase()); // Convert skills to lowercase for case-insensitive match
+    const skillNames = userSkills.map((s) => s.name.toLowerCase()); // Convert skills to lowercase for case-insensitive match
 
     // Step 2: Use aggregation to find matched jobs
     const matchedJobs = await Job.aggregate([
@@ -325,20 +324,20 @@ const getMatchedJobs = async (req, res) => {
                 $map: {
                   input: "$skillsRequired", // Job's required skills
                   as: "skill",
-                  in: { $toLower: "$$skill" } // Convert job skills to lowercase
-                }
-              }
-            ]
-          }
-        }
+                  in: { $toLower: "$$skill" }, // Convert job skills to lowercase
+                },
+              },
+            ],
+          },
+        },
       },
       // Step 4: Match only jobs that have at least one skill in common
       {
         $match: {
           $expr: {
-            $gt: [{ $size: "$matchedSkills" }, 0] // Only jobs with at least one matching skill
-          }
-        }
+            $gt: [{ $size: "$matchedSkills" }, 0], // Only jobs with at least one matching skill
+          },
+        },
       },
       // Step 5: Project the necessary fields, including recruiter (user) ID
       {
@@ -349,23 +348,23 @@ const getMatchedJobs = async (req, res) => {
           skillsRequired: 1,
           matchedSkills: 1,
           recruiter: "$user", // Directly returning the recruiter ID from the 'user' field
-        }
-      }
+          isActive: true,
+        },
+      },
     ]);
 
     // Step 6: Send back the response with matched jobs
     res.status(200).json({
       success: true,
       message: "Matched jobs fetched successfully",
-      data: matchedJobs
+      data: matchedJobs,
     });
-
   } catch (error) {
     console.error("Error fetching matched jobs:", error);
     res.status(500).json({
       success: false,
       message: "Failed to fetch matched jobs",
-      error: error.message
+      error: error.message,
     });
   }
 };

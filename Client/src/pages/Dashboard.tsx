@@ -355,7 +355,6 @@ const Dashboard = () => {
     try {
       const getMatchingJobs = await axios.get(
         `http://www.localhost:4000/api/job/matchedJobs`,
-
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -364,7 +363,11 @@ const Dashboard = () => {
       );
 
       // console.log(getMatchingJobs.data?.data);
-      setMatchingJobs(getMatchingJobs.data?.data || []);
+      // setMatchingJobs(getMatchingJobs.data?.data || []);
+    
+      setMatchingJobs(
+        (getMatchingJobs.data?.data || []).filter((job) => job.isActive)
+      );
     } catch (error) {
       console.error("Job loading error", error);
       toast({

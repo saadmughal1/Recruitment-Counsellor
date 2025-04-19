@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -15,13 +15,15 @@ import { Bell, Menu, X, User, LogOut } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { NotificationIndicator } from "@/components/notifications/NotificationIndicator";
 
+
 interface MainLayoutProps {
   children: React.ReactNode;
 }
 
+
 const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const { user, logout } = useAuth();
-  const { applicant, recruiter, notifications } = useData();
+  const { applicant, recruiter } = useData();
   const navigate = useNavigate();
 
   const userName =
@@ -35,9 +37,6 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       : recruiter?.profilePhoto;
 
   // Count unread notifications
-  const unreadCount = notifications.filter(
-    (notif) => notif.userId === user?.id && !notif.read
-  ).length;
 
   // Get initials for avatar fallback
   const getInitials = () => {
@@ -63,6 +62,8 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     logout();
     navigate("/");
   };
+
+  const unreadCount = 0;
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -104,14 +105,14 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                     >
                       <span>Dashboard</span>
                     </Link>
-                    
+
                     <Link
                       to="/chat-list"
                       className="flex items-center space-x-2 p-2 hover:bg-gray-100 rounded"
                     >
                       <span>Chats</span>
                     </Link>
-                    <Link
+                    {/* <Link
                       to="/notifications"
                       className="flex items-center space-x-2 p-2 hover:bg-gray-100 rounded"
                     >
@@ -121,7 +122,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                           {unreadCount}
                         </span>
                       )}
-                    </Link>
+                    </Link> */}
                   </div>
 
                   <div className="mt-auto pb-4">
@@ -155,12 +156,13 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                 >
                   Chats
                 </Link>
-                <Link
+
+                {/* <Link
                   to="/notifications"
                   className="text-gray-700 hover:text-primary"
                 >
                   <NotificationIndicator count={unreadCount} />
-                </Link>
+                </Link> */}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button

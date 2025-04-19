@@ -38,7 +38,6 @@ const Chat = () => {
       senderId,
       recipientId
     )}`;
-
     socket.emit("join_room", room);
   }, [socket, recipientId]);
 
@@ -89,12 +88,6 @@ const Chat = () => {
         }
       );
 
-
-      console.log(res)
-      // setMessageList((prev) => [
-      //   ...prev,
-      //   { content: messageText, sender: recipientId },
-      // ]);
       setMessageText("");
 
       const data = {
@@ -108,7 +101,14 @@ const Chat = () => {
         createdAt: new Date().toISOString(),
       };
 
-      await socket.emit("send_message", data);
+      const room = `${getMinId(senderId, recipientId)}-${getMaxId(
+        senderId,
+        recipientId
+      )}`;
+      socket.emit("join_room", room);
+
+      const notifRoom = `notification-${senderId}`;
+      socket.emit("join_room", notifRoom);
 
       setMessageList((prev) => [...prev, data]);
     } catch (err) {
