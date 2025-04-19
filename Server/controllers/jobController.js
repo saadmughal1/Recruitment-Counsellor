@@ -302,62 +302,70 @@ const getMatchedJobs = async (req, res) => {
   }
 
   const token = authHeader.split(" ")[1];
-
   const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
   const userId = decoded.id;
 
   try {
-    // Step 1: Fetch the user's skills
+    // 1. Get user's skills and experiences
     const userSkills = await Skill.find({ user: userId }).lean();
-    const skillNames = userSkills.map((s) => s.name.toLowerCase()); // Convert skills to lowercase for case-insensitive match
+    const userExperiences = await Experience.find({ user: userId }).lean();
 
-    // Step 2: Use aggregation to find matched jobs
-    const matchedJobs = await Job.aggregate([
-      // Step 3: Add matchedSkills array to each job
-      {
-        $addFields: {
-          matchedSkills: {
-            $setIntersection: [
-              skillNames, // Skills of the user
-              {
-                $map: {
-                  input: "$skillsRequired", // Job's required skills
-                  as: "skill",
-                  in: { $toLower: "$$skill" }, // Convert job skills to lowercase
-                },
-              },
-            ],
-          },
-        },
-      },
-      // Step 4: Match only jobs that have at least one skill in common
-      {
-        $match: {
-          $expr: {
-            $gt: [{ $size: "$matchedSkills" }, 0], // Only jobs with at least one matching skill
-          },
-        },
-      },
-      // Step 5: Project the necessary fields, including recruiter (user) ID
-      {
-        $project: {
-          title: 1,
-          description: 1,
-          experienceRequired: 1,
-          skillsRequired: 1,
-          matchedSkills: 1,
-          recruiter: "$user", // Directly returning the recruiter ID from the 'user' field
-          isActive: true,
-        },
-      },
-    ]);
+    const skillNames = userSkills.map((s) => s.name.toLowerCase());
 
-    // Step 6: Send back the response with matched jobs
+    // 2. Get all active jobs and populate recruiter
+    const allJobs = await Job.find({ isActive: true })
+      .populate("user", "_id fullname email") // 'user' is the recruiter field
+      .lean();
+
+    const matchedJobs = allJobs.filter((job) => {
+      const jobSkills = job.skillsRequired.map((s) => s.toLowerCase());
+
+      // Match skills
+      const matchedSkills = skillNames.filter((s) => jobSkills.includes(s));
+      if (matchedSkills.length === 0) return false;
+
+      // Match experience
+      let totalExperienceMonths = 0;
+
+      userExperiences.forEach((exp) => {
+        if (Array.isArray(exp.skills) && exp.skills.length > 0) {
+          const expSkills = exp.skills.map((s) => s.toLowerCase());
+          const hasMatch = expSkills.some((s) => jobSkills.includes(s));
+          if (!hasMatch) return;
+        }
+
+        const start = new Date(exp.startDate);
+        const end = exp.current ? new Date() : new Date(exp.endDate);
+        if (isNaN(start) || isNaN(end)) return;
+
+        const months =
+          (end.getFullYear() - start.getFullYear()) * 12 +
+          (end.getMonth() - start.getMonth());
+
+        totalExperienceMonths += months;
+      });
+
+      const totalExperienceYears = totalExperienceMonths / 12;
+
+      return totalExperienceYears >= (job.experienceRequired || 0);
+    });
+
+    // 3. Return matched jobs and include recruiter ID/info
+    const responseJobs = matchedJobs.map((job) => ({
+      _id: job._id,
+      title: job.title,
+      description: job.description,
+      experienceRequired: job.experienceRequired,
+      skillsRequired: job.skillsRequired,
+      recruiter: job.user?._id || job.user, // recruiter ID
+      recruiterInfo: job.user || null, // full recruiter object if populated
+      isActive: job.isActive,
+    }));
+
     res.status(200).json({
       success: true,
       message: "Matched jobs fetched successfully",
-      data: matchedJobs,
+      data: responseJobs,
     });
   } catch (error) {
     console.error("Error fetching matched jobs:", error);
