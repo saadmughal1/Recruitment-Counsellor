@@ -15,7 +15,7 @@ import Profile from "@/pages/Profile";
 import JobListing from "@/pages/JobListing";
 import JobDetail from "@/pages/JobDetail";
 import JobForm from "@/pages/JobForm";
-import Connections from "@/pages/Connections";
+import ChatList from "@/pages/ChatList";
 import Chat from "@/pages/Chat";
 import Notifications from "@/pages/Notifications";
 
@@ -114,9 +114,8 @@ const App = () => (
                   </ProtectedRoute>
                 }
               />
-             
-             
-             <Route
+
+              <Route
                 path="/start-chat/:id"
                 element={
                   <ProtectedRoute>
@@ -125,24 +124,15 @@ const App = () => (
                 }
               />
 
-             
-             
               <Route
-                path="/connections"
+                path="/chat-list"
                 element={
                   <ProtectedRoute>
-                    <Connections />
+                    <ChatList />
                   </ProtectedRoute>
                 }
               />
-              {/* <Route
-                path="/connections/:id"
-                element={
-                  <ProtectedRoute>
-                    <ConnectionChat />
-                  </ProtectedRoute>
-                }
-              /> */}
+
               <Route
                 path="/notifications"
                 element={
@@ -151,8 +141,6 @@ const App = () => (
                   </ProtectedRoute>
                 }
               />
-
-
 
               {/* Update the index route to redirect to landing page */}
               <Route

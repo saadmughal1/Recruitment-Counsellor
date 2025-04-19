@@ -104,33 +104,12 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                     >
                       <span>Dashboard</span>
                     </Link>
+                    
                     <Link
-                      to="/profile"
+                      to="/chat-list"
                       className="flex items-center space-x-2 p-2 hover:bg-gray-100 rounded"
                     >
-                      <span>Profile</span>
-                    </Link>
-
-                    {user?.userType === "applicant" ? (
-                      <Link
-                        to="/jobs"
-                        className="flex items-center space-x-2 p-2 hover:bg-gray-100 rounded"
-                      >
-                        <span>Jobs</span>
-                      </Link>
-                    ) : (
-                      <Link
-                        to="/applicants"
-                        className="flex items-center space-x-2 p-2 hover:bg-gray-100 rounded"
-                      >
-                        <span>Applicants</span>
-                      </Link>
-                    )}
-                    <Link
-                      to="/connections"
-                      className="flex items-center space-x-2 p-2 hover:bg-gray-100 rounded"
-                    >
-                      <span>Connections</span>
+                      <span>Chats</span>
                     </Link>
                     <Link
                       to="/notifications"
@@ -171,10 +150,10 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                   Dashboard
                 </Link>
                 <Link
-                  to="/connections"
+                  to="/chat-list"
                   className="text-gray-700 hover:text-primary"
                 >
-                  Connections
+                  Chats
                 </Link>
                 <Link
                   to="/notifications"
