@@ -105,10 +105,7 @@ const Chat = () => {
         senderId,
         recipientId
       )}`;
-      socket.emit("join_room", room);
-
-      const notifRoom = `notification-${senderId}`;
-      socket.emit("join_room", notifRoom);
+      socket.emit("send_message", data);
 
       setMessageList((prev) => [...prev, data]);
     } catch (err) {
