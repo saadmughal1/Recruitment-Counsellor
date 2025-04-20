@@ -157,7 +157,142 @@ const getSingleJob = async (req, res) => {
 
 // get job matched applicants
 const matchedApplicants = async (req, res) => {
+  const { id: jobId } = req.params;
+
+  try {
+    const job = await Job.findById(jobId);
+    if (!job) {
+      return res.status(404).json({ success: false, message: "Job not found" });
+    }
+
+    const requiredSkills = job.skillsRequired.map((s) => s.toLowerCase());
+
+    const applicants = await User.aggregate([
+      { $match: { role: "applicant" } },
+
+      {
+        $lookup: {
+          from: "skills",
+          localField: "_id",
+          foreignField: "user",
+          as: "skills",
+        },
+      },
+      {
+        $lookup: {
+          from: "experiences",
+          localField: "_id",
+          foreignField: "user",
+          as: "experiences",
+        },
+      },
+      {
+        $addFields: {
+          userSkills: {
+            $map: {
+              input: "$skills",
+              as: "skill",
+              in: { $toLower: "$$skill.name" },
+            },
+          },
+        },
+      },
+      {
+        $addFields: {
+          matchedSkills: {
+            $setIntersection: ["$userSkills", requiredSkills],
+          },
+        },
+      },
+      {
+        $match: {
+          $expr: {
+            $gt: [{ $size: "$matchedSkills" }, 0],
+          },
+        },
+      },
+      {
+        $addFields: {
+          experienceMonths: {
+            $sum: {
+              $map: {
+                input: "$experiences",
+                as: "exp",
+                in: {
+                  $divide: [
+                    {
+                      $subtract: [
+                        {
+                          $ifNull: [
+                            {
+                              $cond: [
+                                { $eq: ["$$exp.current", true] },
+                                new Date(),
+                                "$$exp.endDate",
+                              ],
+                            },
+                            new Date(),
+                          ],
+                        },
+                        "$$exp.startDate",
+                      ],
+                    },
+                    1000 * 60 * 60 * 24 * 30,
+                  ],
+                },
+              },
+            },
+          },
+        },
+      },
+      {
+        $addFields: {
+          totalExperienceYears: {
+            $round: [{ $divide: ["$experienceMonths", 12] }, 1],
+          },
+        },
+      },
+      {
+        $match: {
+          $expr: {
+            $gte: ["$totalExperienceYears", job.experienceRequired],
+          },
+        },
+      },
+      {
+        $project: {
+          fullname: 1,
+          email: 1,
+          profilePhoto: 1,
+          userSkills: 1,
+          matchedSkills: 1,
+          requiredSkills: {
+            $literal: requiredSkills,
+          },
+          totalExperienceYears: 1,
+          requiredExperienceYears: {
+            $literal: job.experienceRequired,
+          },
+          experiences: 1,
+        },
+      },
+    ]);
+
+    res.status(200).json({
+      success: true,
+      message: "Matched applicants fetched successfully",
+      data: applicants,
+    });
+  } catch (error) {
+    console.error("Error fetching applicants:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch applicants",
+      error: error.message,
+    });
+  }
 };
+
 
 // get job matched jobs
 const getMatchedJobs = async (req, res) => {
