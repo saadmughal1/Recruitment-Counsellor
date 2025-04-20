@@ -15,7 +15,7 @@ const skillRoutes = require("./routes/skillRoutes");
 const experienceRoutes = require("./routes/experienceRoutes");
 const jobRoutes = require("./routes/jobRoutes");
 const messageRoutes = require("./routes/messageRoutes");
-const inputSkills = require("./routes/inputSkills");
+const inputSkills = require("./routes/inputSkillsRoute");
 
 
 connectDB();
