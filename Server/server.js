@@ -63,7 +63,6 @@ app.use("/api/experience", experienceRoutes);
 app.use("/api/job", jobRoutes);
 app.use("/api/message", messageRoutes);
 app.use("/api/inputskills", inputSkills);
-// http://localhost:4000/api/inputskills/add-input-skills
 
 
 server.listen(PORT, () => {

@@ -17,40 +17,55 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Pencil, Plus, Trash2 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 import { Skill } from "@/types";
 
 function SkillComponent() {
   const { toast } = useToast();
   const [skills, setSkills] = useState<Skill[]>([]);
-  const [loading, setLoading] = useState(true); // NEW
+  const [getInputskills, setInputSkills] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [skillForm, setSkillForm] = useState({ name: "" });
-  const [editingSkillId, setEditingSkillId] = useState<string | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
 
   const resetForm = () => {
     setSkillForm({ name: "" });
-    setEditingSkillId(null);
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSkillForm((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
+  const loadInputSkills = async () => {
+    setLoading(true);
+    try {
+      const res = await axios.get(
+        "http://localhost:4000/api/inputskills/get-input-skills"
+      );
+      setInputSkills(res?.data || []);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to load input skills.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const fetchSkills = async () => {
     setLoading(true);
     const tok = localStorage.getItem("user");
     const token = JSON.parse(tok)?.token;
-    // console.log("skill tok:" + token);
     if (!token) {
-      setLoading(false); // No token, stop loading
+      setLoading(false);
       return;
     }
 
@@ -73,6 +88,7 @@ function SkillComponent() {
 
   useEffect(() => {
     fetchSkills();
+    loadInputSkills();
   }, []);
 
   const handleSubmit = async () => {
@@ -90,22 +106,10 @@ function SkillComponent() {
 
     setLoading(true);
     try {
-      if (editingSkillId) {
-        await axios.put(
-          `http://localhost:4000/api/skill/update/${editingSkillId}`,
-          skillForm,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
-        toast({ title: "Skill updated", description: "Updated successfully" });
-      } else {
-        await axios.post("http://localhost:4000/api/skill/add", skillForm, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        toast({ title: "Skill added", description: "Added successfully" });
-      }
-
+      await axios.post("http://localhost:4000/api/skill/add", skillForm, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      toast({ title: "Skill added", description: "Added successfully" });
       fetchSkills();
       setDialogOpen(false);
       resetForm();
@@ -151,12 +155,6 @@ function SkillComponent() {
     }
   };
 
-  const openEditDialog = (skill: Skill) => {
-    setSkillForm({ name: skill.name });
-    setEditingSkillId(skill._id || null);
-    setDialogOpen(true);
-  };
-
   return (
     <Card className="mb-8">
       <CardHeader>
@@ -177,34 +175,38 @@ function SkillComponent() {
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>
-                  {editingSkillId ? "Edit Skill" : "Add Skill"}
-                </DialogTitle>
+                <DialogTitle>Add Skill</DialogTitle>
                 <DialogDescription>
-                  {editingSkillId
-                    ? "Update your skill information"
-                    : "Add a new technical or soft skill"}
+                  Add a new technical or soft skill
                 </DialogDescription>
               </DialogHeader>
               <div className="grid gap-4 py-4">
                 <div>
                   <Label htmlFor="name">Skill Name</Label>
-                  <Input
-                    id="name"
-                    name="name"
+                  <Select
+                    onValueChange={(value) =>
+                      setSkillForm((prev) => ({ ...prev, name: value }))
+                    }
                     value={skillForm.name}
-                    onChange={handleChange}
-                    placeholder="JavaScript, Communication, etc."
-                  />
+                  >
+                    <SelectTrigger id="name">
+                      <SelectValue placeholder="Select a skill" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {getInputskills.map((skill) => (
+                        <SelectItem key={skill._id} value={skill.name}>
+                          {skill.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
               <DialogFooter>
                 <Button variant="outline" onClick={() => setDialogOpen(false)}>
                   Cancel
                 </Button>
-                <Button onClick={handleSubmit}>
-                  {editingSkillId ? "Update" : "Add"}
-                </Button>
+                <Button onClick={handleSubmit}>Add</Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>
@@ -230,13 +232,6 @@ function SkillComponent() {
               >
                 <span className="mr-2">{skill.name}</span>
                 <div className="flex ml-2">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => openEditDialog(skill)}
-                  >
-                    <Pencil className="h-4 w-4" />
-                  </Button>
                   <Button
                     variant="ghost"
                     size="icon"
