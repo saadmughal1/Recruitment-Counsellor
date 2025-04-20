@@ -47,6 +47,15 @@ import { useToast } from "@/components/ui/use-toast";
 
 import axios from "axios";
 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Plus, Trash2 } from "lucide-react";
+
 const JobDetail = () => {
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
@@ -57,6 +66,12 @@ const JobDetail = () => {
   const [job, setJob] = useState<any | null>(null);
 
   const [isEditing, setIsEditing] = useState(false);
+
+  // const [getInputskills, setInputSkills] = useState([]);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
+  const [getInputSkills, setInputSkills] = useState<any[]>([]);
 
   const handleToggleActive = (checked: boolean) => {
     setEditForm({
@@ -87,6 +102,7 @@ const JobDetail = () => {
   useEffect(() => {
     loadJob();
     loadMatchingApplicants();
+    loadInputSkills();
   }, []);
 
   const loadJob = async () => {
@@ -94,6 +110,8 @@ const JobDetail = () => {
       const getJob = await axios.get(
         `http://localhost:4000/api/job/getSingleJob/${id}`
       );
+
+      setSelectedSkills(getJob.data?.data.skillsRequired);
 
       setEditForm({
         title: getJob.data?.data.title,
@@ -167,19 +185,13 @@ const JobDetail = () => {
       return;
     }
 
-    const skills =
-      typeof editForm.skillsRequired === "string"
-        ? editForm.skillsRequired
-            .split(",")
-            .map((skill) => skill.trim())
-            .filter((skill) => skill.length > 0)
-        : editForm.skillsRequired;
+    
 
     await axios.put(`http://localhost:4000/api/job/update/${id}`, {
       title: editForm.title,
       description: editForm.description,
       location: editForm.location,
-      skillsRequired: skills,
+      skillsRequired: selectedSkills,
       experienceRequired: editForm.experienceRequired,
       isActive: editForm.isActive,
     });
@@ -190,16 +202,23 @@ const JobDetail = () => {
     });
   };
 
-  // const handleDelete = () => {
-  //   if (id) {
-  //     deleteJobPost(id);
-  //     toast({
-  //       title: "Job Deleted",
-  //       description: "Your job posting has been successfully deleted.",
-  //     });
-  //     navigate("/jobs");
-  //   }
-  // };
+  const loadInputSkills = async () => {
+    setLoading(true);
+    try {
+      const res = await axios.get(
+        "http://localhost:4000/api/inputskills/get-input-skills"
+      );
+      setInputSkills(res?.data || []);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to load input skills.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   function getPostedDate(dateString: string): string {
     const postedDate = new Date(dateString);
@@ -233,6 +252,16 @@ const JobDetail = () => {
       </MainLayout>
     );
   }
+
+  const handleSkillSelect = (value: string) => {
+    if (!selectedSkills.includes(value)) {
+      setSelectedSkills((prev) => [...prev, value]);
+    }
+  };
+
+  const handleDeleteSkill = (skill: string) => {
+    setSelectedSkills((prev) => prev.filter((s) => s !== skill));
+  };
 
   function formatDate(isoDate: string): string {
     const date = new Date(isoDate);
@@ -278,41 +307,6 @@ const JobDetail = () => {
                     <Edit className="h-4 w-4 mr-2" />
                     Edit
                   </Button>
-                  {/* <Dialog
-                      open={confirmDelete}
-                      onOpenChange={setConfirmDelete}
-                    >
-                      <DialogTrigger asChild>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="text-destructive hover:text-destructive"
-                        >
-                          <Trash className="h-4 w-4 mr-2" />
-                          Delete
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent>
-                        <DialogHeader>
-                          <DialogTitle>Confirm Deletion</DialogTitle>
-                          <DialogDescription>
-                            Are you sure you want to delete this job posting?
-                            This action cannot be undone.
-                          </DialogDescription>
-                        </DialogHeader>
-                        <DialogFooter>
-                          <Button
-                            variant="outline"
-                            onClick={() => setConfirmDelete(false)}
-                          >
-                            Cancel
-                          </Button>
-                          <Button variant="destructive" onClick={handleDelete}>
-                            Delete
-                          </Button>
-                        </DialogFooter>
-                      </DialogContent>
-                    </Dialog> */}
                 </div>
               )}
             </div>
@@ -436,20 +430,87 @@ const JobDetail = () => {
                   />
                 </div>
 
+                {/*  */}
                 <div>
-                  <Label htmlFor="skillsRequired">Required Skills</Label>
-                  <Textarea
-                    id="skillsRequired"
-                    name="skillsRequired"
-                    value={editForm.skillsRequired}
-                    onChange={handleInputChange}
-                    placeholder="Enter skills separated by commas (e.g., JavaScript, React, Node.js)"
-                    rows={3}
-                  />
-                  <p className="text-xs text-muted-foreground mt-1">
-                    List skills separated by commas, e.g., "JavaScript, React,
-                    Communication"
-                  </p>
+                  <Label htmlFor="skills">
+                    Required Skills <span className="text-destructive">*</span>
+                  </Label>
+                  <Dialog
+                    open={dialogOpen}
+                    onOpenChange={(open) => setDialogOpen(open)}
+                  >
+                    <DialogTrigger asChild>
+                      <Button variant="outline" size="sm">
+                        <Plus className="h-4 w-4 mr-2" />
+                        Edit Skill
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Select Skills</DialogTitle>
+                        <DialogDescription>
+                          Choose skills from the list
+                        </DialogDescription>
+                      </DialogHeader>
+                      <div className="grid gap-4 py-4">
+                        <Select onValueChange={handleSkillSelect}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select a skill" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {getInputSkills.map((skill) => (
+                              <SelectItem key={skill._id} value={skill.name}>
+                                {skill.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <div className="mt-2 flex flex-wrap gap-2">
+                          {selectedSkills.map((skill, idx) => (
+                            <span
+                              key={idx}
+                              className="px-3 py-1 bg-gray-200 rounded-full text-sm flex items-center"
+                            >
+                              {skill}
+                              <button
+                                type="button"
+                                className="ml-2"
+                                onClick={() => handleDeleteSkill(skill)}
+                              >
+                                <Trash2 className="h-4 w-4 text-destructive" />
+                              </button>
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                      <DialogFooter>
+                        <Button
+                          variant="outline"
+                          onClick={() => setDialogOpen(false)}
+                        >
+                          Cancel
+                        </Button>
+                        <Button onClick={() => setDialogOpen(false)}>
+                          Done
+                        </Button>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
+                </div>
+
+                {/* ?????????? */}
+
+                <div>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {selectedSkills.map((skill, idx) => (
+                      <span
+                        key={idx}
+                        className="px-3 py-1 bg-gray-200 rounded-full text-sm flex items-center"
+                      >
+                        {skill}
+                      </span>
+                    ))}
+                  </div>
                 </div>
 
                 <div className="flex justify-end space-x-2">
@@ -590,9 +651,7 @@ const JobDetail = () => {
                                 </Button>
                                 <Button
                                   onClick={() => {
-                                    navigate(
-                                      `/start-chat/${applicant._id}`
-                                    );
+                                    navigate(`/start-chat/${applicant._id}`);
                                   }}
                                 >
                                   Message

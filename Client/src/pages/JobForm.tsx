@@ -57,7 +57,7 @@ function JobForm() {
       const res = await axios.get("http://localhost:4000/api/skill/", {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setSkills(res?.data?.data || []); // Set the fetched skills
+      setSkills(res?.data?.data || []);
     } catch (error) {
       toast({
         title: "Error",
