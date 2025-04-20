@@ -15,6 +15,8 @@ const skillRoutes = require("./routes/skillRoutes");
 const experienceRoutes = require("./routes/experienceRoutes");
 const jobRoutes = require("./routes/jobRoutes");
 const messageRoutes = require("./routes/messageRoutes");
+const inputSkills = require("./routes/inputSkills");
+
 
 connectDB();
 
@@ -35,7 +37,6 @@ const io = new Server(server, {
 });
 
 io.on("connection", (socket) => {
-
   socket.on("join_room", (room) => {
     socket.join(room);
     console.log(`Socket ${socket.id} joined room: ${room}`);
@@ -45,7 +46,6 @@ io.on("connection", (socket) => {
     // console.log(data);
     io.to(data.room).emit("receive_message", data);
   });
-
 
   socket.on("disconnect", () => {
     console.log("User disconnected:", socket.id);
@@ -62,6 +62,9 @@ app.use("/api/skill", skillRoutes);
 app.use("/api/experience", experienceRoutes);
 app.use("/api/job", jobRoutes);
 app.use("/api/message", messageRoutes);
+app.use("/api/inputskills", inputSkills);
+// http://localhost:4000/api/inputskills/add-input-skills
+
 
 server.listen(PORT, () => {
   console.log("Server is running on port " + PORT);
