@@ -120,7 +120,7 @@ function ApplicantJobForm() {
 
               <div>
                 <Label htmlFor="experienceRequired">
-                  Required Experience (years){" "}
+                  How much experience do you have (years){" "}
                   <span className="text-destructive">*</span>
                 </Label>
                 <Input

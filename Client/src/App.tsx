@@ -27,6 +27,8 @@ import ApplicantJob from "@/pages/ApplicantJob";
 import ViewApplicantProfile from "./pages/ViewApplicantProfile";
 import ViewCompanyProfile from "./pages/ViewCompanyProfile";
 
+import ApplicantFilteredJobs from "./pages/ApplicantFilteredJobs";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -132,6 +134,15 @@ const App = () => (
                 element={
                   <ProtectedRoute>
                     <ApplicantJob />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/applicant-filtered-jobs/:id"
+                element={
+                  <ProtectedRoute>
+                    <ApplicantFilteredJobs />
                   </ProtectedRoute>
                 }
               />

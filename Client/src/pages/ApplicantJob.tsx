@@ -43,7 +43,7 @@ const ApplicantJob = () => {
           },
         }
       );
-
+      // console.log(jobs)
       setLoadJobs(jobs.data?.data);
     } catch (error) {
       console.error("Job loading error", error);
@@ -76,8 +76,11 @@ const ApplicantJob = () => {
               </div>
             ) : (
               <div className="space-y-4">
-                {getLoadJobs.slice(0, 3).map((job) => (
-                  <Link key={job._id} to={`/jobs/${job._id}`}>
+                {getLoadJobs.map((job) => (
+                  <Link
+                    key={job._id}
+                    to={`/applicant-filtered-jobs/${job._id}`}
+                  >
                     <div className="border rounded-lg p-4 hover:border-primary transition-colors cursor-pointer">
                       <div className="flex justify-between items-start">
                         <div>

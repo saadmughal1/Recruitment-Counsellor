@@ -276,7 +276,7 @@ const JobDetail = () => {
     <MainLayout>
       <div className="mb-6">
         <Button variant="outline" className="mb-4" asChild>
-          <Link to="/jobs">
+          <Link to="/dashboard">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Jobs
           </Link>
