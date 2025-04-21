@@ -15,11 +15,12 @@ import { useToast } from "@/components/ui/use-toast";
 
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import { useNavigate } from "react-router-dom";
 
 const ApplicantProfile = () => {
   const { toast } = useToast();
   const { applicant } = useData();
-
+  const navigate = useNavigate();
   if (!applicant) {
     return (
       <MainLayout>
@@ -209,7 +210,25 @@ const ApplicantProfile = () => {
           Applicant Profile
         </h1>
 
-        <Button onClick={downloadCv}>Download Cv</Button>
+        <div>
+        <Button
+            className="mr-3"
+            onClick={() => {
+              navigate("/applicant-jobs");
+            }}
+          >
+            Display Jobs
+          </Button>
+          <Button
+            className="mr-3"
+            onClick={() => {
+              navigate("/appplicant-job-form");
+            }}
+          >
+            Create a Job
+          </Button>
+          <Button onClick={downloadCv}>Download Cv</Button>
+        </div>
       </div>
 
       {/* Basic Information */}

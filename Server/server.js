@@ -16,6 +16,8 @@ const experienceRoutes = require("./routes/experienceRoutes");
 const jobRoutes = require("./routes/jobRoutes");
 const messageRoutes = require("./routes/messageRoutes");
 const inputSkills = require("./routes/inputSkillsRoute");
+const applicantjob = require("./routes/applicantjobRoute");
+
 
 
 connectDB();
@@ -63,6 +65,7 @@ app.use("/api/experience", experienceRoutes);
 app.use("/api/job", jobRoutes);
 app.use("/api/message", messageRoutes);
 app.use("/api/inputskills", inputSkills);
+app.use("/api/applicantjob", applicantjob);
 // http://localhost:4000/api/inputskills/add-input-skills
 
 

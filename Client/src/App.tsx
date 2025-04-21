@@ -21,6 +21,9 @@ import Notifications from "@/pages/Notifications";
 
 import EducationComponent from "./components/EducationComponent";
 
+import ApplicantJobForm from "@/pages/ApplicantJobForm";
+import ApplicantJob from "@/pages/ApplicantJob";
+
 import ViewApplicantProfile from "./pages/ViewApplicantProfile";
 import ViewCompanyProfile from "./pages/ViewCompanyProfile";
 
@@ -111,6 +114,24 @@ const App = () => (
                 element={
                   <ProtectedRoute requiredUserType="recruiter">
                     <JobForm />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/appplicant-job-form"
+                element={
+                  <ProtectedRoute>
+                    <ApplicantJobForm />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/applicant-jobs"
+                element={
+                  <ProtectedRoute>
+                    <ApplicantJob />
                   </ProtectedRoute>
                 }
               />

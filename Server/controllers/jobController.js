@@ -293,7 +293,6 @@ const matchedApplicants = async (req, res) => {
   }
 };
 
-
 // get job matched jobs
 const getMatchedJobs = async (req, res) => {
   const authHeader = req.headers.authorization;
